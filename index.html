@@ -149,13 +149,21 @@
     main.has-detail { grid-template-columns: var(--rail) 1fr; }
     .detail { position: absolute; top: 0; right: 0; bottom: 0; width: var(--detail); z-index: 3; box-shadow: -12px 0 30px rgba(0,0,0,.45); }
   }
+  .sheet-handle { display: none; }
   @media (max-width: 860px) {
-    main, main.has-detail { grid-template-columns: 1fr; grid-template-rows: 42vh 1fr; }
+    main, main.has-detail { grid-template-columns: 1fr; grid-template-rows: 1fr; }
     .map-wrap { grid-row: 1; }
-    .rail { grid-row: 2; border-right: 0; border-top: 1px solid var(--line); }
-    .detail { position: fixed; inset: auto 0 0 0; max-height: 52vh; border-left: 0; border-top: 1px solid var(--line-2); border-radius: 6px 6px 0 0; z-index: 5; box-shadow: 0 -10px 30px rgba(0,0,0,.5); }
-    .counts .count:nth-child(n+3), .clock, .rail-foot, .tag { display: none; }
+    .rail, .detail { position: fixed; left: 0; right: 0; bottom: 0; height: var(--sheet, 50dvh); max-height: none;
+      background: var(--panel); border: 0; border-top: 1px solid var(--line-2); border-radius: 10px 10px 0 0;
+      box-shadow: 0 -10px 30px rgba(0,0,0,.45); z-index: 4; transition: height .28s cubic-bezier(.2,.8,.2,1); }
+    .detail { z-index: 5; }
+    main.dragging .rail, main.dragging .detail { transition: none; }
+    .sheet-handle { display: flex; width: 100%; height: 24px; align-items: center; justify-content: center; cursor: grab; touch-action: none; flex: none; }
+    .sheet-handle::before { content: ""; width: 40px; height: 4px; border-radius: 2px; background: var(--line-2); }
+    .detail-head { padding-top: 0; }
+    .types, .counts .count:nth-child(n+3), .clock, .rail-foot, .tag { display: none; }
     .legend { display: none; }
+    .maplibregl-ctrl-bottom-right { top: 0; bottom: auto; right: auto; left: 0; }
   }
 </style>
 </head>
@@ -175,6 +183,7 @@
 
   <main id="main">
     <section class="rail" aria-label="Event queue">
+      <button type="button" class="sheet-handle" data-sheet-drag aria-label="Resize the list. Drag, or press to change size"></button>
       <div class="search">
         <label class="sr" for="q">Search events</label>
         <input id="q" type="search" placeholder="Search road, suburb or type  ( / )" autocomplete="off">
@@ -231,7 +240,7 @@
       <ul class="plain">
         <li>The dark map hid the roads, which is kind of the whole point. I made the main roads brighter.</li>
         <li>On a laptop the map got squashed into a thin strip, so the details now sit on top of it.</li>
-        <li>On a phone the details covered everything. Now you see the list and map first.</li>
+        <li>On a phone the details covered everything. Now the list and details sit in a sheet you drag up or down, and picking an incident leaves the map in view.</li>
         <li>The markers didn't show up at first. My code was checking if the map was ready at the wrong time.</li>
       </ul>
       <p class="fine">I read Transmax's <a class="src" href="https://transmax.com.au/what-we-do/success-stories/" target="_blank" rel="noopener">case studies</a> and the <a class="src" href="https://qldtraffic.qld.gov.au/more/Developers-and-Data/" target="_blank" rel="noopener">QLDTraffic data spec</a>, picked the guesses, built it with Claude Code, and tested it at laptop and phone sizes.</p>
@@ -403,7 +412,8 @@ function showDetail(e) {
   const fmt = (iso) => iso ? new Date(iso).toLocaleString("en-AU", { dateStyle: "medium", timeStyle: "short", timeZone: "Australia/Brisbane" }) : "–";
   const stale = isStale(e);
   document.getElementById("detail").innerHTML = `
-    <div class="detail-head">
+    <div class="detail-head" data-sheet-drag>
+      <button type="button" class="sheet-handle" data-sheet-drag aria-label="Resize the details. Drag, or press to change size"></button>
       <div class="detail-top">
         <span class="icon" style="color:${color}">${icon(e.type)}</span>
         <h2>${esc(label(e))}</h2>
@@ -437,6 +447,7 @@ function showDetail(e) {
     <div class="section"><h3>Question for operators</h3>
       <p class="q">${esc(operatorQuestion(e))}</p></div>`;
   document.getElementById("main").classList.add("has-detail");
+  if (isPhone()) snapSheet("half"); // always leave the map visible above the details
   document.getElementById("close-detail").onclick = closeDetail;
   map && map.resize();
 }
@@ -446,7 +457,7 @@ function closeDetail() {
   const id = selectedId; selectedId = null;
   document.querySelectorAll(".row[aria-selected='true']").forEach((r) => r.setAttribute("aria-selected", "false"));
   map && map.resize();
-  map && map.setPadding({ top: 0, bottom: 0, left: 0, right: 0 });
+  map && map.setPadding({ top: 0, bottom: isPhone() ? sheetPx() : 0, left: 0, right: 0 });
   if (map && map.getSource("sel")) map.getSource("sel").setData({ type: "FeatureCollection", features: [] });
   const r = id && document.getElementById(`ev-${id}`);
   r ? r.focus() : document.getElementById("queue").focus();
@@ -475,9 +486,9 @@ const detailFloats = () => matchMedia("(min-width: 861px) and (max-width: 1200px
 function highlight(e, fly) {
   if (!map || !map.getSource("sel")) return;
   map.getSource("sel").setData({ type: "Feature", properties: {}, geometry: { type: "Point", coordinates: e.point } });
-  map.setPadding({ top: 0, bottom: 0, left: 0, right: detailFloats() ? 380 : 0 });
-  if (!fly && detailFloats()) map.easeTo({ center: e.point, duration: 0 });
-  if (fly) map.easeTo({ center: e.point, zoom: Math.max(map.getZoom(), 12), duration: 600, padding: { left: 20, right: detailFloats() ? 400 : 20, top: 20, bottom: 20 } });
+  map.setPadding({ top: 0, bottom: isPhone() ? sheetPx() : 0, left: 0, right: detailFloats() ? 380 : 0 });
+  if (!fly && (detailFloats() || isPhone())) map.easeTo({ center: e.point, duration: 0 });
+  if (fly) map.easeTo({ center: e.point, zoom: Math.max(map.getZoom(), 12), duration: 600, padding: { left: 20, right: detailFloats() ? 400 : 20, top: 20, bottom: isPhone() ? sheetPx() + 20 : 20 } });
 }
 function fit() {
   if (!map) return;
@@ -515,6 +526,7 @@ function initMap() {
     map.on("mouseleave", "pts", () => { map.getCanvas().style.cursor = ""; popup.remove(); });
     map.on("click", "pts", (ev) => select(ev.features[0].properties.id, { fly: false }));
     mapReady = true;
+    if (isPhone()) snapSheet(sheetState);
     updateMap(visible());
     if (selectedId) { const e = DATA.events.find((x) => String(x.id) === String(selectedId)); e && highlight(e, false); }
   });
@@ -544,6 +556,74 @@ document.querySelectorAll(".scope button").forEach((b) => b.addEventListener("cl
 }));
 const notes = document.getElementById("notes");
 document.getElementById("open-notes").onclick = () => openNotes();
+// Phones: the list and details live in one bottom sheet with three resting heights
+const isPhone = () => matchMedia("(max-width: 860px)").matches;
+const SHEET_ORDER = ["peek", "half", "full"];
+let sheetState = "half";
+function sheetSnaps() {
+  const h = innerHeight, head = document.querySelector("header").offsetHeight;
+  return { peek: 196, half: Math.round(h * 0.5), full: h - head - 8 };
+}
+const sheetPx = () => parseFloat(getComputedStyle(document.getElementById("main")).getPropertyValue("--sheet")) || sheetSnaps()[sheetState];
+function setSheet(px, animate = true) {
+  const m = document.getElementById("main");
+  m.classList.toggle("dragging", !animate);
+  m.style.setProperty("--sheet", `${Math.round(px)}px`);
+}
+function snapSheet(name) {
+  sheetState = name;
+  setSheet(sheetSnaps()[name]);
+  document.querySelectorAll(".sheet-handle").forEach((b) => b.setAttribute("aria-label", `Resize. Now ${name === "peek" ? "small" : name}. Drag, or press to change size`));
+  if (!map) return;
+  map.setPadding({ top: 0, left: 0, right: 0, bottom: Math.min(sheetSnaps()[name], innerHeight * 0.85) });
+  const e = selectedId && DATA.events.find((x) => String(x.id) === String(selectedId));
+  if (e && name !== "full") map.easeTo({ center: e.point, duration: 300 });
+}
+function stepSheet(dir) {
+  const i = SHEET_ORDER.indexOf(sheetState);
+  snapSheet(SHEET_ORDER[Math.max(0, Math.min(2, i + dir))]);
+}
+let drag = null;
+document.addEventListener("pointerdown", (ev) => {
+  const zone = ev.target.closest("[data-sheet-drag]");
+  if (!zone || !isPhone()) return;
+  if (ev.target.closest("button:not(.sheet-handle)")) return;
+  drag = { y0: ev.clientY, h0: sheetPx(), y: ev.clientY, t: performance.now(), v: 0, moved: false, handle: !!ev.target.closest(".sheet-handle") };
+  zone.setPointerCapture?.(ev.pointerId);
+});
+document.addEventListener("pointermove", (ev) => {
+  if (!drag) return;
+  const now = performance.now(), dt = Math.max(1, now - drag.t);
+  drag.v = (ev.clientY - drag.y) / dt; // px per ms, positive = moving down
+  drag.y = ev.clientY; drag.t = now;
+  const dy = ev.clientY - drag.y0;
+  if (Math.abs(dy) > 4) drag.moved = true;
+  const s = sheetSnaps();
+  setSheet(Math.max(s.peek - 40, Math.min(s.full, drag.h0 - dy)), false);
+});
+document.addEventListener("pointerup", () => {
+  if (!drag) return;
+  const d = drag; drag = null;
+  document.getElementById("main").classList.remove("dragging");
+  if (!d.moved) { if (d.handle) stepSheet(sheetState === "full" ? -2 : 1); return; }
+  // A flick goes to the next size beyond where the finger let go; a slow drag settles on the nearest
+  const s = sheetSnaps(), h = sheetPx();
+  if (d.v < -0.5) return snapSheet(SHEET_ORDER.find((n) => s[n] > h + 8) || "full");
+  if (d.v > 0.5) return snapSheet([...SHEET_ORDER].reverse().find((n) => s[n] < h - 8) || "peek");
+  snapSheet(SHEET_ORDER.reduce((a, b) => (Math.abs(s[b] - h) < Math.abs(s[a] - h) ? b : a)));
+});
+document.addEventListener("keydown", (ev) => {
+  if (!ev.target.classList?.contains("sheet-handle")) return;
+  if (ev.key === "ArrowUp") { ev.preventDefault(); stepSheet(1); }
+  if (ev.key === "ArrowDown") { ev.preventDefault(); stepSheet(-1); }
+});
+addEventListener("resize", () => { if (isPhone()) snapSheet(sheetState); });
+// Keyboard (Enter or Space on the handle) steps through the sizes
+document.addEventListener("click", (ev) => {
+  const h = ev.target.closest(".sheet-handle");
+  if (h && ev.detail === 0) stepSheet(sheetState === "full" ? -2 : 1);
+});
+
 // About: four short steps
 let step = 1;
 const STEPS = 4;
