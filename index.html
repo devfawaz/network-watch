@@ -109,6 +109,7 @@
   dialog::backdrop { background: rgba(0,0,0,.6); }
   .notes { padding: 22px 24px; display: flex; flex-direction: column; gap: 16px; height: min(540px, calc(100dvh - 64px)); }
   .notes .note { color: var(--muted); }
+  .notes .footnote { margin-top: auto; padding-top: 12px; border-top: 1px solid var(--line); }
   .notes .note b { color: var(--text); }
   .notes h2 { font-size: 20px; }
   .notes h3 { font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
@@ -209,8 +210,7 @@
       <p>So I read your South Australia case study, where operators moved from 11 separate systems to one, with a single alarm manager and a map of every device. I kept picturing that one person at the desk when a dozen things go wrong at once.</p>
       <p><a class="src caselink" href="https://transmax.com.au/wp-content/uploads/2025/06/SA-Streams-ITS-Platform_Case-Study_2025.pdf" target="_blank" rel="noopener">Read the case study: STREAMS ITS platform, South Australia (PDF) ↗</a></p>
       <p class="lead">What do they look at first, and can they trust it?</p>
-      <p class="note" id="data-note"></p>
-      <p class="fine">This is my own concept. It isn't STREAMS, and I'm not connected to Transmax or Transport and Main Roads.</p>
+      <p class="fine footnote"><span id="data-note"></span> This is my own concept. It isn't STREAMS, and I'm not connected to Transmax or Transport and Main Roads.</p>
     </section>
 
     <section class="step" data-step="2" hidden>
@@ -602,8 +602,8 @@ fetch("data/events.json").then((r) => r.json()).then((d) => {
     ? "Concept · illustrative events · not STREAMS"
     : "Concept on live QLDTraffic data · not STREAMS";
   document.getElementById("data-note").innerHTML = d.illustrative
-    ? "<b>The incidents are made up.</b> The roads are real, and the data follows the format of Queensland's public traffic feed."
-    : "<b>The events shown are a real snapshot</b> of the public QLDTraffic feed, taken at the time in the header.";
+    ? "A note before you explore: the incidents here are made up. The roads are real, and the data follows the format of Queensland's public traffic feed."
+    : "A note before you explore: these incidents are a real snapshot of Queensland's public traffic feed, taken at the time in the header.";
   document.getElementById("data-credit").textContent = d.illustrative
     ? "Events: illustrative, modelled on the QLDTraffic API v1.10 data format."
     : "Data: State of Queensland (Department of Transport and Main Roads) QLDtraffic API, licensed CC BY 4.0 AU.";
