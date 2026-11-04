@@ -176,18 +176,25 @@
     <p>A one-day design exercise built on the data model of Queensland's public traffic feed (QLDTraffic API v1.10): the same event types, priorities, lane impacts and timestamps the public feed uses. It is <b>not</b> STREAMS and not affiliated with Transport and Main Roads or Transmax. I have never seen an operator's screen, so every decision below is a hypothesis to test in a control room.</p>
     <p class="callout" id="data-note"></p>
 
-    <h3>The question behind it</h3>
-    <p>When something happens on the network, do operators start from the list or from the map? This concept bets on <b>the list for priority, the map for context</b>: the queue decides what you look at next, and the map follows your selection.</p>
+    <h3>The problem</h3>
+    <p>When a dozen things are happening on the network at once, an operator has to decide <b>which one needs them now</b>, and <b>whether what they're seeing is current</b>. Traffic management centres have been moving from many separate systems to one (in South Australia, from 11 systems to a single alarm manager and map), which puts all of that in front of one person.</p>
 
-    <h3>Design decisions</h3>
+    <h3>Three guesses this concept tests</h3>
     <ul>
-      <li><b>Unplanned first.</b> Crashes, hazards, flooding and congestion sit in "Needs attention". Roadworks and special events are collapsed under "Planned", because they were scheduled and rarely need a response now.</li>
-      <li><b>Sorted by priority, then impact, then time.</b> Red alert before high, blocked lanes before delays, newest first within a tie.</li>
-      <li><b>Never colour alone.</b> Priority shows as a coloured stripe, a text label and the order in the list, so it still reads for colour-blind operators and on a washed-out wall screen.</li>
-      <li><b>Stale data is flagged.</b> An unplanned event not updated in over an hour is marked, because an operator needs to know whether information is current before acting on it.</li>
-      <li><b>Keyboard first.</b> Arrow keys move through the queue, Enter opens details, Esc closes, / searches. Operators on shift shouldn't need to aim a mouse.</li>
+      <li><b>What needs me now.</b> Unplanned events (crashes, hazards, flooding, congestion) come first, sorted by priority, then lanes blocked, then time. Roadworks and special events are collapsed under "Planned", because they were scheduled and rarely need a response now.</li>
+      <li><b>Can I trust it.</b> An unplanned event nobody has updated in over an hour is flagged, with a prompt to check a camera or the source before acting.</li>
+      <li><b>List or map.</b> The list decides what you look at next and the map follows your selection, rather than the other way round.</li>
+    </ul>
+
+    <h3>Smaller decisions</h3>
+    <ul>
+      <li><b>Never colour alone.</b> Priority shows as a stripe, a text label and the order in the list, so it reads for colour-blind operators and on a washed-out wall screen.</li>
+      <li><b>Keyboard first.</b> Arrow keys move through the queue, Enter opens details, Esc closes, / searches.</li>
       <li><b>Dark by default.</b> Control rooms are dim and shifts are long. To check with operators, not assume.</li>
     </ul>
+
+    <h3>What I don't know</h3>
+    <p>I've never seen an operator at work, and existing systems may already handle all of this better. This is a way to start a conversation, not a fix.</p>
 
     <h3>What I'd want to learn from operators</h3>
     <ul>

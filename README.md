@@ -4,18 +4,19 @@ A one-day design concept: what a traffic operator's "what needs me now?" screen 
 
 **Not STREAMS, and not affiliated with Transport and Main Roads or Transmax.** Every design decision is a hypothesis to test with operators.
 
-## The idea
+## The problem
 
-The list sets the priority; the map gives the context. The queue decides what you look at next, and the map follows your selection.
+When a dozen things are happening on the network at once, an operator has to decide which one needs them now, and whether what they're seeing is current.
 
-- **Unplanned first:** crashes, hazards, flooding and congestion under "Needs attention"; roadworks and special events collapsed under "Planned".
-- **Sorted by priority, then lane impact, then time.**
-- **Never colour alone:** a stripe, a text label and list order all carry priority.
-- **Stale data flagged:** unplanned events not updated in over an hour.
-- **Keyboard first:** ↑ ↓ (or j k) move, Enter opens, Esc closes, / searches, F fits the map, ? opens the notes.
-- **Dark by default** for dim control rooms (to check with operators).
+## Three guesses it tests
 
-Press **?** in the prototype for the full notes and the questions I'd ask operators.
+- **What needs me now:** unplanned events first, sorted by priority, then lanes blocked, then time; roadworks and special events collapsed under "Planned".
+- **Can I trust it:** unplanned events not updated in over an hour are flagged.
+- **List or map:** the list decides what you look at next; the map follows.
+
+Also: priority never relies on colour alone; keyboard first (↑ ↓ or j k, Enter, Esc, /, F, ?); dark by default for dim control rooms (to check with operators).
+
+Press **?** in the prototype for the full notes and the questions I'd ask operators. I've never seen an operator at work, so this is a way to start a conversation, not a fix.
 
 ## Data
 
