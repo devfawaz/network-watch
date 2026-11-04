@@ -1,6 +1,6 @@
 # Network Watch: a concept for traffic operators
 
-A one-day design concept: what a traffic operator's "what needs me now?" screen could look like, built on the data model of Queensland's public traffic feed (QLDTraffic API v1.10). Made for the Transmax Product Designer application.
+A design concept: what a traffic operator's "what needs me now?" screen could look like, built on the data model of Queensland's public traffic feed (QLDTraffic API v1.10). Made for the Transmax Product Designer application.
 
 **Not STREAMS, and not affiliated with Transport and Main Roads or Transmax.** Every design decision is a hypothesis to test with operators.
 
