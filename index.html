@@ -113,6 +113,20 @@
   .notes p, .notes li { color: #c9cfd8; }
   .notes ul { padding-left: 18px; display: grid; gap: 6px; }
   .notes .fine { color: var(--faint); font-size: 12px; }
+  .notes .kicker { font-size: 12px; color: var(--muted); letter-spacing: .04em; }
+  .notes h2 { outline: none; margin-top: -8px; }
+  .notes b { color: var(--text); font-weight: 600; }
+  .step { display: grid; gap: 14px; min-height: 260px; align-content: start; }
+  .step[hidden], .link-btn[hidden] { display: none; }
+  .steps-nav { display: flex; align-items: center; gap: 12px; padding-top: 6px; border-top: 1px solid var(--line); }
+  .steps-nav .dots { flex: 1; display: flex; justify-content: center; gap: 6px; }
+  .steps-nav .dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--line-2); }
+  .steps-nav .dots i.on { background: var(--focus); }
+  .help-btn.primary { background: var(--text); color: var(--bg); border-color: var(--text); font-weight: 600; }
+  .help-btn[hidden] { display: inline-block; visibility: hidden; }
+  .skip { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .link-btn { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; padding: 4px 0; }
+  .link-btn:hover { color: var(--text); }
 
   @media (min-width: 861px) and (max-width: 1200px) {
     main.has-detail { grid-template-columns: var(--rail) 1fr; }
@@ -172,43 +186,55 @@
 
 <dialog id="notes" aria-labelledby="notes-title">
   <div class="notes">
-    <h2 id="notes-title" tabindex="-1" autofocus style="outline:none">About this concept</h2>
-    <p>I haven't worked in transport, so before applying for a product design role in this space I wanted to understand what an operator deals with when lots of things happen at once. This is a small concept to help me think about that. It isn't STREAMS and isn't connected to Transport and Main Roads or Transmax.</p>
-    <p class="callout" id="data-note"></p>
+    <section class="step" data-step="1">
+      <p class="kicker">About this concept · 1 of 4</p>
+      <h2 id="notes-title" tabindex="-1" autofocus>Why I made this</h2>
+      <p>I haven't worked in transport, so before applying for a product design role in this space I wanted to understand what an operator deals with when lots of things happen at once.</p>
+      <p>The problem I picked: when a dozen things are happening on the roads at once, which one needs the operator now, and can they trust what they're looking at? In South Australia, operators went from 11 separate systems to one alarm list and map, so all of it lands in front of one person.</p>
+      <p class="callout" id="data-note"></p>
+      <p class="fine">Not STREAMS, and not connected to Transport and Main Roads or Transmax.</p>
+    </section>
 
-    <h3>The problem I picked</h3>
-    <p>When a dozen things are happening on the roads at once, which one needs the operator now, and can they trust what they're looking at? In South Australia, operators went from 11 separate systems to one alarm list and map, so all of it lands in front of one person.</p>
+    <section class="step" data-step="2" hidden>
+      <p class="kicker">About this concept · 2 of 4</p>
+      <h2 tabindex="-1">Three guesses</h2>
+      <p><b>What needs me now.</b> Crashes, hazards, flooding and congestion come before roadworks and events, since those were planned. Within that, I sorted by priority, then by how many lanes are blocked, then by time.</p>
+      <p><b>Can I trust it.</b> If nobody has updated an incident for over an hour, the screen says so, so nobody acts on old information.</p>
+      <p><b>List or map.</b> The list leads and the map follows: you pick from the list and the map moves to it. This is the one I'm least sure about.</p>
+      <p class="fine">Smaller things: priority uses a label and position as well as colour, everything works from the keyboard, and it's dark because control rooms are usually dim. I'd check all of these with operators.</p>
+    </section>
 
-    <h3>Three guesses</h3>
-    <p>First, crashes, hazards, flooding and congestion should come before roadworks and events, since those were planned. Within that, I sorted by priority, then by how many lanes are blocked, then by time.</p>
-    <p>Second, if nobody has updated an incident for over an hour, the screen should say so, so nobody acts on old information.</p>
-    <p>Third, the list should lead and the map should follow. You pick from the list and the map moves to it. This is the one I'm least sure about.</p>
-    <p>Smaller things: priority is shown with a label and position as well as colour, everything works from the keyboard, and it's dark because control rooms are usually dim. I'd check all of these with operators.</p>
+    <section class="step" data-step="3" hidden>
+      <p class="kicker">About this concept · 3 of 4</p>
+      <h2 tabindex="-1">What I'd ask</h2>
+      <ul>
+        <li>When you rebuild a tool that operators know by muscle memory, how do you change it without slowing them down during the switch?</li>
+        <li>In the first minute of a motorway crash, what do you look at, and in what order?</li>
+        <li>How do you know someone else is already handling something?</li>
+        <li>Which alerts do you ignore, and why?</li>
+      </ul>
+      <p class="fine">I've never seen a real control room, so I'd expect some of my guesses to be wrong. These are the questions that would tell me which.</p>
+    </section>
 
-    <h3>What I changed after testing it</h3>
-    <ul>
-      <li>The markers didn't appear at first, because the map said it was ready before it really was.</li>
-      <li>The standard dark map hid the roads, which are the whole context, so I made the main roads brighter.</li>
-      <li>The ? shortcut was being caught by the search shortcut.</li>
-      <li>On a phone, the details opened over everything on load. Now the queue and map show first, and details open as a half-height sheet.</li>
-      <li>On laptop-sized screens the map got squeezed to a sliver. Now the details float over it and the selected incident stays in view.</li>
-    </ul>
+    <section class="step" data-step="4" hidden>
+      <p class="kicker">About this concept · 4 of 4</p>
+      <h2 tabindex="-1">How I made it</h2>
+      <p>I read Transmax's public case studies and the QLDTraffic data spec, picked the problem and the three guesses, and built it with Claude Code. Then I tested it with the keyboard, on a phone and at laptop width. What I changed after testing:</p>
+      <ul>
+        <li>The markers didn't appear at first, because the map said it was ready before it really was.</li>
+        <li>The standard dark map hid the roads, which are the whole context, so I made the main roads brighter.</li>
+        <li>On a phone, details opened over everything. Now the queue and map show first, and details open as a half-height sheet.</li>
+        <li>On laptop-sized screens the map got squeezed to a sliver. Now the details float over it and the selected incident stays in view.</li>
+      </ul>
+      <p class="fine"><span id="data-credit"></span> Base map © OpenStreetMap contributors © CARTO. Concept by Muhammed Fawaz, fawaz.cc.</p>
+    </section>
 
-    <h3>What I'd ask</h3>
-    <ul>
-      <li>When you rebuild a tool that operators know by muscle memory, how do you change it without slowing them down during the switch?</li>
-      <li>In the first minute of a motorway crash, what do you look at, and in what order?</li>
-      <li>What makes an incident yours: the district, the road, or whoever picks it up first?</li>
-      <li>How do you know someone else is already handling something?</li>
-      <li>What's on the wall screens compared with your own desk?</li>
-      <li>Which alerts do you ignore, and why?</li>
-    </ul>
-
-    <h3>How I made it</h3>
-    <p>I read Transmax's public case studies and the QLDTraffic data spec, decided on the problem and the three guesses, and built it with Claude Code. Then I tested it with the keyboard, on a phone and at laptop width, and fixed what broke. I've never seen a real control room, so I'd expect some of this to be wrong.</p>
-
-    <p class="fine"><span id="data-credit"></span> Base map © OpenStreetMap contributors © CARTO. Concept by Muhammed Fawaz, fawaz.cc.</p>
-    <form method="dialog"><button class="help-btn" type="submit">Explore the concept</button> <span class="fine">Press ? any time to come back here.</span></form>
+    <div class="steps-nav">
+      <button type="button" class="help-btn" id="step-back">Back</button>
+      <span class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <button type="button" class="help-btn primary" id="step-next">Next</button>
+    </div>
+    <form method="dialog" class="skip"><button type="submit" class="link-btn" id="step-skip">Skip to the concept</button><span class="fine">Press ? any time to come back here.</span></form>
   </div>
 </dialog>
 
@@ -496,13 +522,33 @@ document.querySelectorAll(".scope button").forEach((b) => b.addEventListener("cl
   renderQueue(); fit();
 }));
 const notes = document.getElementById("notes");
-document.getElementById("open-notes").onclick = () => notes.showModal();
+document.getElementById("open-notes").onclick = () => openNotes();
+// About: four short steps
+let step = 1;
+const STEPS = 4;
+function showStep(n, focus = true) {
+  step = Math.max(1, Math.min(STEPS, n));
+  document.querySelectorAll("#notes .step").forEach((el) => (el.hidden = Number(el.dataset.step) !== step));
+  document.querySelectorAll("#notes .dots i").forEach((d, i) => d.classList.toggle("on", i === step - 1));
+  document.getElementById("step-back").hidden = step === 1;
+  const next = document.getElementById("step-next");
+  next.textContent = step === STEPS ? "Explore the concept" : "Next";
+  document.getElementById("step-skip").hidden = step === STEPS;
+  if (focus) document.querySelector(`#notes .step[data-step="${step}"] h2`).focus();
+}
+document.getElementById("step-back").onclick = () => showStep(step - 1);
+document.getElementById("step-next").onclick = () => (step === STEPS ? notes.close() : showStep(step + 1));
+notes.addEventListener("keydown", (ev) => {
+  if (ev.key === "ArrowRight") { ev.preventDefault(); step === STEPS ? notes.close() : showStep(step + 1); }
+  if (ev.key === "ArrowLeft") { ev.preventDefault(); showStep(step - 1); }
+});
+const openNotes = () => { showStep(1, false); notes.showModal(); document.getElementById("notes-title").focus(); };
 notes.addEventListener("close", () => { const r = selectedId && document.getElementById(`ev-${selectedId}`); (r || document.getElementById("queue")).focus(); });
 
 document.addEventListener("keydown", (ev) => {
   if (notes.open) return;
   const inInput = !!ev.target.matches?.("input");
-  if ((ev.key === "?" || (ev.key === "/" && ev.shiftKey)) && !inInput) { ev.preventDefault(); notes.showModal(); return; }
+  if ((ev.key === "?" || (ev.key === "/" && ev.shiftKey)) && !inInput) { ev.preventDefault(); openNotes(); return; }
   if (ev.key === "/" && !inInput) { ev.preventDefault(); document.getElementById("q").focus(); return; }
   if (ev.key === "Escape") { if (inInput) { ev.target.blur(); document.getElementById("queue").focus(); } else closeDetail(); return; }
   if (inInput) { if (ev.key === "ArrowDown") { ev.preventDefault(); const ids = orderedIds(); ids.length && select(ids[0]); } return; }
@@ -536,7 +582,7 @@ fetch("data/events.json").then((r) => r.json()).then((d) => {
   // Show the context before the UI, once per visit
   let seen = false;
   try { seen = sessionStorage.getItem("nw-about-seen") === "1"; sessionStorage.setItem("nw-about-seen", "1"); } catch (_) {}
-  if (!seen) notes.showModal();
+  if (!seen) openNotes();
   // On a wide screen, open the most urgent event straight away; on a phone, show the map and queue first
   const first = orderedIds()[0];
   if (first && matchMedia("(min-width: 861px)").matches) select(first, { fly: false, focusRow: false });
