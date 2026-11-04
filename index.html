@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Network Watch · QLD traffic concept</title>
+<meta name="description" content="A design concept for traffic operators, built on public QLDTraffic data. Not affiliated with Transport and Main Roads or Transmax.">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1015; --panel: #141920; --panel-2: #1a2029; --line: #262e3a; --line-2: #313b49;
+    --text: #e7eaef; --muted: #9ba5b4; --faint: #6c7686; --focus: #7cc4ff;
+    --red: #ff5a52; --high: #ff9d2e; --med: #f0cf4a; --low: #8fb3ff; --planned: #8a94a6; --ok: #4fd18b;
+    --rail: 400px; --detail: 380px;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font: 14px/1.45 Inter, system-ui, sans-serif; }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 6px; }
+  .mono { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  .app { display: grid; grid-template-rows: auto 1fr; height: 100%; }
+  header { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--panel); flex-wrap: wrap; }
+  .brand { display: flex; align-items: baseline; gap: 10px; }
+  .brand b { font-weight: 700; letter-spacing: .01em; }
+  .tag { font-size: 11px; color: var(--muted); border: 1px solid var(--line-2); border-radius: 999px; padding: 2px 8px; }
+  .counts { display: flex; gap: 6px; margin-left: 8px; }
+  .count { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); font-weight: 600; }
+  .count small { color: var(--muted); font-weight: 500; }
+  .spacer { flex: 1; }
+  .scope { display: flex; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 2px; }
+  .scope button { padding: 5px 10px; border-radius: 6px; color: var(--muted); font-weight: 500; }
+  .scope button[aria-pressed="true"] { background: var(--line-2); color: var(--text); }
+  .clock { color: var(--muted); }
+  .help-btn { border: 1px solid var(--line-2); border-radius: 8px; padding: 5px 10px; color: var(--muted); }
+  .help-btn:hover { color: var(--text); }
+
+  main { display: grid; grid-template-columns: var(--rail) 1fr; min-height: 0; position: relative; }
+  main.has-detail { grid-template-columns: var(--rail) 1fr var(--detail); }
+
+  /* Queue */
+  .rail { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--line); background: var(--panel); }
+  .search { padding: 12px; border-bottom: 1px solid var(--line); display: grid; gap: 8px; }
+  .search input { width: 100%; background: var(--bg); border: 1px solid var(--line-2); color: var(--text); border-radius: 8px; padding: 8px 10px; font: inherit; }
+  .search input::placeholder { color: var(--faint); }
+  .types { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 9px; border: 1px solid var(--line-2); border-radius: 999px; font-size: 12px; color: var(--muted); }
+  .chip[aria-pressed="true"] { color: var(--text); background: var(--line-2); }
+  .chip svg { width: 13px; height: 13px; }
+  .queue { overflow: auto; min-height: 0; flex: 1; }
+  .group { border-bottom: 1px solid var(--line); }
+  .group-head { position: sticky; top: 0; z-index: 1; width: 100%; display: flex; align-items: center; gap: 8px; padding: 9px 12px; background: var(--panel); font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--line); }
+  .group-head .n { margin-left: auto; font-family: "JetBrains Mono", monospace; letter-spacing: 0; }
+  .group-head .caret { transition: transform .15s; }
+  .group[data-open="false"] .caret { transform: rotate(-90deg); }
+  .group[data-open="false"] ol { display: none; }
+  ol { list-style: none; }
+  .row { display: grid; grid-template-columns: 4px 28px 1fr auto; gap: 10px; align-items: start; width: 100%; text-align: left; padding: 10px 12px 10px 0; border-bottom: 1px solid var(--line); }
+  .row:hover { background: var(--panel-2); }
+  .row[aria-selected="true"] { background: #1d2733; box-shadow: inset 0 0 0 1px #2f4256; }
+  .stripe { align-self: stretch; border-radius: 0 3px 3px 0; }
+  .icon { width: 28px; height: 28px; border-radius: 7px; display: grid; place-items: center; background: var(--panel-2); border: 1px solid var(--line-2); }
+  .icon svg { width: 16px; height: 16px; }
+  .row-main { min-width: 0; }
+  .row-title { font-weight: 600; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .pri { font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 4px; color: #0d1015; letter-spacing: .02em; }
+  .row-road, .row-impact { display: block; }
+  .row-road { color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row-impact { color: var(--muted); font-size: 13px; }
+  .row-meta { text-align: right; color: var(--muted); font-size: 12px; white-space: nowrap; display: grid; gap: 2px; }
+  .stale { color: var(--high); }
+  .empty { padding: 24px 16px; color: var(--muted); }
+  .rail-foot { padding: 8px 12px; border-top: 1px solid var(--line); color: var(--faint); font-size: 12px; display: flex; gap: 12px; flex-wrap: wrap; }
+  kbd { font-family: "JetBrains Mono", monospace; font-size: 11px; border: 1px solid var(--line-2); border-bottom-width: 2px; border-radius: 4px; padding: 0 4px; color: var(--muted); }
+
+  /* Map */
+  .map-wrap { position: relative; min-height: 0; }
+  #map { position: absolute; inset: 0; }
+  .legend { position: absolute; left: 12px; bottom: 28px; background: rgba(20,25,32,.92); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 12px; display: grid; gap: 5px; }
+  .legend div { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid #0d1015; box-shadow: 0 0 0 1px currentColor; }
+  .maplibregl-ctrl-attrib { background: rgba(13,16,21,.8) !important; color: var(--faint); }
+  .maplibregl-ctrl-attrib a { color: var(--muted) !important; }
+  .maplibregl-popup-content { background: var(--panel); color: var(--text); border: 1px solid var(--line-2); border-radius: 8px; padding: 6px 10px; font-size: 12px; }
+  .maplibregl-popup-tip { display: none; }
+
+  /* Detail */
+  .detail { border-left: 1px solid var(--line); background: var(--panel); overflow: auto; min-height: 0; display: none; }
+  main.has-detail .detail { display: block; }
+  .detail-head { padding: 14px 16px; border-bottom: 1px solid var(--line); display: grid; gap: 8px; position: sticky; top: 0; background: var(--panel); }
+  .detail-top { display: flex; align-items: center; gap: 10px; }
+  .detail-top h2 { font-size: 16px; line-height: 1.3; }
+  .close { margin-left: auto; width: 30px; height: 30px; border-radius: 8px; color: var(--muted); border: 1px solid var(--line-2); }
+  .section { padding: 14px 16px; border-bottom: 1px solid var(--line); display: grid; gap: 8px; }
+  .section h3 { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--faint); }
+  dl { display: grid; grid-template-columns: 110px 1fr; gap: 6px 12px; }
+  dt { color: var(--muted); }
+  dd { color: var(--text); }
+  .callout { background: var(--panel-2); border: 1px solid var(--line-2); border-radius: 8px; padding: 10px 12px; color: var(--muted); }
+  .callout b { color: var(--text); }
+  .q { border-left: 2px solid var(--focus); padding-left: 10px; color: var(--muted); }
+
+  /* Notes dialog */
+  dialog { margin: auto; max-width: 720px; width: calc(100% - 32px); max-height: calc(100% - 48px); background: var(--panel); color: var(--text); border: 1px solid var(--line-2); border-radius: 14px; padding: 0; }
+  dialog::backdrop { background: rgba(0,0,0,.6); }
+  .notes { padding: 22px 24px; display: grid; gap: 16px; overflow: auto; }
+  .notes h2 { font-size: 20px; }
+  .notes h3 { font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+  .notes p, .notes li { color: #c9cfd8; }
+  .notes ul { padding-left: 18px; display: grid; gap: 6px; }
+  .notes .fine { color: var(--faint); font-size: 12px; }
+
+  @media (max-width: 860px) {
+    main, main.has-detail { grid-template-columns: 1fr; grid-template-rows: 42vh 1fr; }
+    .map-wrap { grid-row: 1; }
+    .rail { grid-row: 2; border-right: 0; border-top: 1px solid var(--line); }
+    .detail { position: fixed; inset: auto 0 0 0; max-height: 52vh; border-left: 0; border-top: 1px solid var(--line-2); border-radius: 14px 14px 0 0; z-index: 5; box-shadow: 0 -10px 30px rgba(0,0,0,.5); }
+    .counts .count:nth-child(n+3), .clock, .rail-foot, .tag { display: none; }
+    .legend { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand"><b>Network Watch</b><span class="tag" id="data-tag">Concept · not STREAMS</span></div>
+    <div class="counts" id="counts" aria-live="polite"></div>
+    <div class="spacer"></div>
+    <div class="scope" role="group" aria-label="Area">
+      <button type="button" data-scope="seq" aria-pressed="true">South East Qld</button>
+      <button type="button" data-scope="all" aria-pressed="false">All Queensland</button>
+    </div>
+    <span class="clock mono" id="snapshot"></span>
+    <button type="button" class="help-btn" id="open-notes" aria-haspopup="dialog">About <kbd>?</kbd></button>
+  </header>
+
+  <main id="main">
+    <section class="rail" aria-label="Event queue">
+      <div class="search">
+        <label class="sr" for="q">Search events</label>
+        <input id="q" type="search" placeholder="Search road, suburb or type  ( / )" autocomplete="off">
+        <div class="types" id="types" role="group" aria-label="Event types"></div>
+      </div>
+      <div class="queue" id="queue" role="listbox" aria-label="Events, most urgent first" tabindex="0"></div>
+      <div class="rail-foot"><span><kbd>↑</kbd><kbd>↓</kbd> move</span><span><kbd>Enter</kbd> details</span><span><kbd>Esc</kbd> close</span><span><kbd>F</kbd> fit map</span></div>
+    </section>
+
+    <section class="map-wrap" aria-label="Map">
+      <div id="map"></div>
+      <div class="legend" aria-hidden="true">
+        <div><span class="dot" style="color:var(--red);background:var(--red)"></span>Red alert</div>
+        <div><span class="dot" style="color:var(--high);background:var(--high)"></span>High</div>
+        <div><span class="dot" style="color:var(--med);background:var(--med)"></span>Medium</div>
+        <div><span class="dot" style="color:var(--low);background:var(--low)"></span>Low</div>
+        <div><span class="dot" style="color:var(--planned);background:var(--planned)"></span>Planned</div>
+      </div>
+    </section>
+
+    <aside class="detail" id="detail" aria-label="Event details"></aside>
+  </main>
+</div>
+
+<div class="sr" id="announce" aria-live="polite"></div>
+
+<dialog id="notes" aria-labelledby="notes-title">
+  <div class="notes">
+    <h2 id="notes-title">Network Watch: a concept for traffic operators</h2>
+    <p>A one-day design exercise built on the data model of Queensland's public traffic feed (QLDTraffic API v1.10): the same event types, priorities, lane impacts and timestamps the public feed uses. It is <b>not</b> STREAMS and not affiliated with Transport and Main Roads or Transmax. I have never seen an operator's screen, so every decision below is a hypothesis to test in a control room.</p>
+    <p class="callout" id="data-note"></p>
+
+    <h3>The question behind it</h3>
+    <p>When something happens on the network, do operators start from the list or from the map? This concept bets on <b>the list for priority, the map for context</b>: the queue decides what you look at next, and the map follows your selection.</p>
+
+    <h3>Design decisions</h3>
+    <ul>
+      <li><b>Unplanned first.</b> Crashes, hazards, flooding and congestion sit in "Needs attention". Roadworks and special events are collapsed under "Planned", because they were scheduled and rarely need a response now.</li>
+      <li><b>Sorted by priority, then impact, then time.</b> Red alert before high, blocked lanes before delays, newest first within a tie.</li>
+      <li><b>Never colour alone.</b> Priority shows as a coloured stripe, a text label and the order in the list, so it still reads for colour-blind operators and on a washed-out wall screen.</li>
+      <li><b>Stale data is flagged.</b> An unplanned event not updated in over an hour is marked, because an operator needs to know whether information is current before acting on it.</li>
+      <li><b>Keyboard first.</b> Arrow keys move through the queue, Enter opens details, Esc closes, / searches. Operators on shift shouldn't need to aim a mouse.</li>
+      <li><b>Dark by default.</b> Control rooms are dim and shifts are long. To check with operators, not assume.</li>
+    </ul>
+
+    <h3>What I'd want to learn from operators</h3>
+    <ul>
+      <li>In the first 60 seconds of a motorway crash, what do you look at, in what order?</li>
+      <li>What makes an event "yours": district, road, device, or whoever picks it up first?</li>
+      <li>How do you know an event is already being handled, or that its information is out of date?</li>
+      <li>What is on the wall screens versus your own desk, and do they ever disagree?</li>
+      <li>Which events do you ignore, and could the system learn that safely?</li>
+    </ul>
+
+    <h3>How it was made</h3>
+    <p>Designed and built in a day with Claude Code, from the QLDTraffic API specification (v1.10) to a working prototype, then checked for keyboard use, screen-reader labels and phone layout.</p>
+
+    <p class="fine"><span id="data-credit"></span> Base map © OpenStreetMap contributors © CARTO. Concept by Muhammed Fawaz, fawaz.cc.</p>
+    <form method="dialog"><button class="help-btn" type="submit">Close</button></form>
+  </div>
+</dialog>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const PRIORITY = { "Red Alert": 4, High: 3, Medium: 2, Low: 1 };
+const PCOLOR = { "Red Alert": "var(--red)", High: "var(--high)", Medium: "var(--med)", Low: "var(--low)" };
+const PHEX = { "Red Alert": "#ff5a52", High: "#ff9d2e", Medium: "#f0cf4a", Low: "#8fb3ff", Planned: "#8a94a6" };
+const UNPLANNED = ["Crash", "Hazard", "Flooding", "Congestion"];
+const PLANNED = ["Roadworks", "Special event"];
+const TYPES = [...UNPLANNED, ...PLANNED];
+const SEQ = [151.9, -28.4, 153.6, -26.3]; // lon/lat bounds, South East Queensland
+const STALE_MIN = 60;
+
+const ICONS = {
+  Crash: '<path d="M8 1.5 15 14H1z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 6v3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="8" cy="11.6" r=".9" fill="currentColor"/>',
+  Hazard: '<path d="M8 1.5 14.5 8 8 14.5 1.5 8z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 5v3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="8" cy="10.8" r=".9" fill="currentColor"/>',
+  Flooding: '<path d="M1.5 6c1.6-1.4 3-1.4 4.4 0s2.8 1.4 4.2 0 2.8-1.4 4.4 0M1.5 10.5c1.6-1.4 3-1.4 4.4 0s2.8 1.4 4.2 0 2.8-1.4 4.4 0" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
+  Congestion: '<path d="M2 13V9M6 13V6M10 13V8M14 13V3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+  Roadworks: '<path d="M6.5 2h3l3.5 11H3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M5 8h6M1.5 14h13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
+  "Special event": '<path d="m8 1.8 1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.6l-3.8 2 .7-4.3-3.1-3 4.3-.6z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>',
+};
+const icon = (t) => `<svg viewBox="0 0 16 16" aria-hidden="true">${ICONS[t] || ICONS.Hazard}</svg>`;
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+// How bad the impact on traffic is, for sorting within a priority
+function impactRank(e) {
+  const s = `${e.impact?.impact_type || ""} ${e.impact?.impact_subtype || ""}`.toLowerCase();
+  if (/road closed|all lanes blocked|both lanes blocked/.test(s)) return 4;
+  if (/blocked/.test(s)) return 3;
+  if (/closed|reduced|single lane/.test(s)) return 2;
+  if (/long delays/.test((e.impact?.delay || "").toLowerCase())) return 2;
+  return 1;
+}
+
+let DATA = null, NOW = Date.now(), scope = "seq", query = "", activeTypes = new Set(TYPES), selectedId = null;
+const openGroups = { attention: true, planned: false };
+
+const ago = (iso) => {
+  if (!iso) return "";
+  const m = Math.round((NOW - new Date(iso)) / 60000);
+  if (m < 1) return "just now";
+  if (m < 60) return `${m} min`;
+  const h = Math.round(m / 60);
+  return h < 48 ? `${h} h` : `${Math.round(h / 24)} d`;
+};
+const isStale = (e) => UNPLANNED.includes(e.type) && e.updated && (NOW - new Date(e.updated)) / 60000 > STALE_MIN;
+const inSEQ = (e) => e.point[0] >= SEQ[0] && e.point[0] <= SEQ[2] && e.point[1] >= SEQ[1] && e.point[1] <= SEQ[3];
+const label = (e) => [e.type, e.subtype && e.subtype !== "N/A" ? e.subtype : null].filter(Boolean).join(" · ");
+const impactText = (e) => {
+  const i = e.impact || {};
+  return [i.impact_subtype || i.impact_type, i.direction && i.direction !== "Unknown" ? i.direction : null, i.delay].filter(Boolean).join(" · ");
+};
+
+function visible() {
+  const q = query.trim().toLowerCase();
+  return DATA.events.filter((e) =>
+    (scope === "all" || inSEQ(e)) &&
+    activeTypes.has(e.type) &&
+    (!q || [e.type, e.subtype, e.road, e.locality, e.district, e.description].join(" ").toLowerCase().includes(q))
+  );
+}
+const sortEvents = (list) => list.sort((a, b) =>
+  (PRIORITY[b.priority] || 0) - (PRIORITY[a.priority] || 0) ||
+  impactRank(b) - impactRank(a) ||
+  new Date(b.updated || 0) - new Date(a.updated || 0));
+
+function rowHTML(e) {
+  const planned = PLANNED.includes(e.type);
+  const color = planned ? "var(--planned)" : PCOLOR[e.priority] || "var(--low)";
+  const stale = isStale(e);
+  return `<li><button type="button" class="row" role="option" id="ev-${e.id}" data-id="${e.id}" aria-selected="${e.id === selectedId}" tabindex="-1">
+    <span class="stripe" style="background:${color}"></span>
+    <span class="icon" style="color:${color}">${icon(e.type)}</span>
+    <span class="row-main">
+      <span class="row-title">${esc(label(e))}${planned ? "" : `<span class="pri" style="background:${color}">${esc(e.priority || "Unrated")}</span>`}</span>
+      <span class="row-road" title="${esc(e.road)}">${esc(e.road || "Unnamed road")}${e.locality ? `, ${esc(e.locality)}` : ""}</span>
+      <span class="row-impact">${esc(impactText(e) || "Impact not stated")}</span>
+    </span>
+    <span class="row-meta"><span>${ago(e.updated)}</span>${stale ? `<span class="stale">not updated</span>` : ""}</span>
+  </button></li>`;
+}
+
+function renderQueue() {
+  const list = visible();
+  const attention = sortEvents(list.filter((e) => UNPLANNED.includes(e.type)));
+  const planned = sortEvents(list.filter((e) => PLANNED.includes(e.type)));
+  const group = (key, title, items) => `<div class="group" data-open="${openGroups[key]}">
+      <button type="button" class="group-head" data-group="${key}" aria-expanded="${openGroups[key]}">
+        <svg class="caret" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5 5 6.5 8 3.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+        ${title}<span class="n">${items.length}</span></button>
+      ${items.length ? `<ol>${items.map(rowHTML).join("")}</ol>` : `<ol><li class="empty">Nothing here right now.</li></ol>`}
+    </div>`;
+  document.getElementById("queue").innerHTML =
+    group("attention", "Needs attention", attention) + group("planned", "Planned", planned);
+
+  const red = attention.filter((e) => e.priority === "Red Alert").length;
+  const high = attention.filter((e) => e.priority === "High").length;
+  const stale = attention.filter(isStale).length;
+  document.getElementById("counts").innerHTML =
+    `<span class="count">${attention.length} <small>need attention</small></span>
+     <span class="count" style="color:var(--red)">${red} <small>red alert</small></span>
+     <span class="count" style="color:var(--high)">${high} <small>high</small></span>
+     <span class="count">${stale} <small>stale &gt; 1 h</small></span>`;
+  updateMap(list);
+}
+
+function orderedIds() {
+  return [...document.querySelectorAll(".group[data-open='true'] .row")].map((b) => b.dataset.id);
+}
+
+function select(id, { fly = true, focusRow = true } = {}) {
+  selectedId = id;
+  document.querySelectorAll(".row[aria-selected='true']").forEach((r) => r.setAttribute("aria-selected", "false"));
+  const row = document.getElementById(`ev-${id}`);
+  const e = DATA.events.find((x) => String(x.id) === String(id));
+  if (!e) return;
+  if (!row && PLANNED.includes(e.type) && !openGroups.planned) { openGroups.planned = true; renderQueue(); return select(id, { fly, focusRow }); }
+  const r = document.getElementById(`ev-${id}`);
+  if (r) { r.setAttribute("aria-selected", "true"); r.scrollIntoView({ block: "nearest" }); if (focusRow) r.focus({ preventScroll: true }); }
+  document.getElementById("queue").setAttribute("aria-activedescendant", `ev-${id}`);
+  showDetail(e);
+  highlight(e, fly);
+  document.getElementById("announce").textContent = `${label(e)}, ${e.priority || ""}, ${e.road || ""}`;
+}
+
+function showDetail(e) {
+  const planned = PLANNED.includes(e.type);
+  const color = planned ? "var(--planned)" : PCOLOR[e.priority] || "var(--low)";
+  const i = e.impact || {};
+  const fmt = (iso) => iso ? new Date(iso).toLocaleString("en-AU", { dateStyle: "medium", timeStyle: "short", timeZone: "Australia/Brisbane" }) : "–";
+  const stale = isStale(e);
+  document.getElementById("detail").innerHTML = `
+    <div class="detail-head">
+      <div class="detail-top">
+        <span class="icon" style="color:${color}">${icon(e.type)}</span>
+        <h2>${esc(label(e))}</h2>
+        <button type="button" class="close" id="close-detail" aria-label="Close details">✕</button>
+      </div>
+      <div class="row-title">${planned ? `<span class="pri" style="background:${color}">Planned</span>` : `<span class="pri" style="background:${color}">${esc(e.priority || "Unrated")}</span>`}
+        <span class="mono" style="color:var(--muted)">#${esc(e.id)} · ${esc(e.status || "")}</span></div>
+    </div>
+    ${stale ? `<div class="section"><div class="callout"><b>Not updated for ${ago(e.updated)}.</b> Check a camera or the source before acting on this.</div></div>` : ""}
+    <div class="section"><h3>Where</h3><dl>
+      <dt>Road</dt><dd>${esc(e.road || "–")}</dd>
+      <dt>Suburb</dt><dd>${esc(e.locality || "–")}</dd>
+      <dt>District</dt><dd>${esc(e.district || "–")}</dd>
+    </dl></div>
+    <div class="section"><h3>Impact</h3><dl>
+      <dt>Lanes</dt><dd>${esc(i.impact_subtype || i.impact_type || "–")}</dd>
+      <dt>Direction</dt><dd>${esc([i.direction, i.towards ? `towards ${i.towards}` : ""].filter(Boolean).join(" ") || "–")}</dd>
+      <dt>Delay</dt><dd>${esc(i.delay || "–")}</dd>
+      <dt>Cause</dt><dd>${esc(e.dueTo || "–")}</dd>
+    </dl></div>
+    ${e.description || e.advice || e.alertMessage ? `<div class="section"><h3>What we know</h3>
+      ${e.description ? `<p>${esc(e.description)}</p>` : ""}
+      ${e.advice ? `<p style="color:var(--muted)">Advice to motorists: ${esc(e.advice)}</p>` : ""}
+      ${e.alertMessage ? `<div class="callout">${esc(e.alertMessage)}</div>` : ""}</div>` : ""}
+    <div class="section"><h3>Timeline</h3><dl>
+      <dt>Started</dt><dd>${fmt(e.start)}</dd>
+      <dt>Expected end</dt><dd>${fmt(e.end)}</dd>
+      <dt>Last update</dt><dd>${fmt(e.updated)} <span style="color:var(--muted)">(${ago(e.updated)} ago)</span></dd>
+      <dt>Source</dt><dd>${esc(e.source || "–")}</dd>
+    </dl></div>
+    <div class="section"><h3>Question for operators</h3>
+      <p class="q">${planned ? "Do planned works ever need your attention mid-shift, and how would you want to be told?" : "Is this enough to decide your first action, or do you go to a camera first?"}</p></div>`;
+  document.getElementById("main").classList.add("has-detail");
+  document.getElementById("close-detail").onclick = closeDetail;
+  map && map.resize();
+}
+
+function closeDetail() {
+  document.getElementById("main").classList.remove("has-detail");
+  const id = selectedId; selectedId = null;
+  document.querySelectorAll(".row[aria-selected='true']").forEach((r) => r.setAttribute("aria-selected", "false"));
+  map && map.resize();
+  if (map && map.getSource("sel")) map.getSource("sel").setData({ type: "FeatureCollection", features: [] });
+  const r = id && document.getElementById(`ev-${id}`);
+  r ? r.focus() : document.getElementById("queue").focus();
+}
+
+/* Map */
+let map = null, mapReady = false;
+function features(list) {
+  const pts = [], lines = [];
+  for (const e of list) {
+    const planned = PLANNED.includes(e.type);
+    const props = { id: String(e.id), color: planned ? PHEX.Planned : PHEX[e.priority] || PHEX.Low, rank: planned ? 0 : PRIORITY[e.priority] || 1, title: `${label(e)} · ${e.road || ""}` };
+    pts.push({ type: "Feature", properties: props, geometry: { type: "Point", coordinates: e.point } });
+    for (const l of e.lines) lines.push({ type: "Feature", properties: props, geometry: { type: "LineString", coordinates: l } });
+  }
+  return { pts: { type: "FeatureCollection", features: pts }, lines: { type: "FeatureCollection", features: lines } };
+}
+function updateMap(list) {
+  if (!mapReady) return;
+  const f = features(list);
+  map.getSource("pts").setData(f.pts);
+  map.getSource("lines").setData(f.lines);
+}
+function highlight(e, fly) {
+  if (!map || !map.getSource("sel")) return;
+  map.getSource("sel").setData({ type: "Feature", properties: {}, geometry: { type: "Point", coordinates: e.point } });
+  if (fly) map.easeTo({ center: e.point, zoom: Math.max(map.getZoom(), 12), duration: 600, padding: { left: 20, right: 20, top: 20, bottom: 20 } });
+}
+function fit() {
+  if (!map) return;
+  const b = scope === "seq" ? [[SEQ[0], SEQ[1]], [SEQ[2], SEQ[3]]] : [[137.9, -29.2], [153.6, -10.6]];
+  if (scope === "seq") return map.fitBounds([[152.6, -27.9], [153.3, -27.2]], { padding: 30, duration: 600 });
+  map.fitBounds(b, { padding: 30, duration: 600 });
+}
+
+function initMap() {
+  map = new maplibregl.Map({
+    container: "map",
+    style: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+    bounds: [[152.6, -27.9], [153.3, -27.2]],
+    preserveDrawingBuffer: true, // so screenshots and screen recordings capture the map
+    attributionControl: { compact: false, customAttribution: DATA.illustrative ? "Events: illustrative, in the QLDTraffic data format" : "Events: QLDtraffic API, State of Queensland (TMR), CC BY 4.0 AU" },
+  });
+  map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
+  map.on("load", () => {
+    // The dark base map hides roads; operators need the network as context, so lift the main roads
+    for (const l of map.getStyle().layers) {
+      if (l.type !== "line" || !/^(road|bridge|tunnel)_/.test(l.id) || !/_fill/.test(l.id)) continue;
+      if (/_mot_|_trunk_/.test(l.id)) map.setPaintProperty(l.id, "line-color", "#5d6878");
+      else if (/_pri_|_sec_/.test(l.id)) map.setPaintProperty(l.id, "line-color", "#3d4654");
+    }
+    map.addSource("lines", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+    map.addSource("pts", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+    map.addSource("sel", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+    map.addLayer({ id: "lines", type: "line", source: "lines", paint: { "line-color": ["get", "color"], "line-width": ["interpolate", ["linear"], ["zoom"], 8, 2, 14, 5], "line-opacity": 0.85 }, layout: { "line-cap": "round", "line-join": "round" } });
+    map.addLayer({ id: "sel-halo", type: "circle", source: "sel", paint: { "circle-radius": 18, "circle-color": "#7cc4ff", "circle-opacity": 0.18, "circle-stroke-color": "#7cc4ff", "circle-stroke-width": 2 } });
+    map.addLayer({ id: "pts", type: "circle", source: "pts",
+      layout: { "circle-sort-key": ["get", "rank"] },
+      paint: { "circle-color": ["get", "color"], "circle-radius": ["interpolate", ["linear"], ["get", "rank"], 0, 4.5, 1, 5.5, 4, 9], "circle-stroke-color": "#0d1015", "circle-stroke-width": 2 } });
+    const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 10 });
+    map.on("mouseenter", "pts", (ev) => { map.getCanvas().style.cursor = "pointer"; popup.setLngLat(ev.features[0].geometry.coordinates).setText(ev.features[0].properties.title).addTo(map); });
+    map.on("mouseleave", "pts", () => { map.getCanvas().style.cursor = ""; popup.remove(); });
+    map.on("click", "pts", (ev) => select(ev.features[0].properties.id, { fly: false }));
+    mapReady = true;
+    updateMap(visible());
+    if (selectedId) { const e = DATA.events.find((x) => String(x.id) === String(selectedId)); e && highlight(e, false); }
+  });
+}
+
+/* Controls */
+function renderTypes() {
+  document.getElementById("types").innerHTML = TYPES.map((t) =>
+    `<button type="button" class="chip" data-type="${t}" aria-pressed="${activeTypes.has(t)}">${icon(t)}${t}</button>`).join("");
+}
+document.getElementById("types").addEventListener("click", (ev) => {
+  const b = ev.target.closest(".chip"); if (!b) return;
+  const t = b.dataset.type;
+  activeTypes.has(t) ? activeTypes.delete(t) : activeTypes.add(t);
+  renderTypes(); renderQueue();
+});
+document.getElementById("queue").addEventListener("click", (ev) => {
+  const g = ev.target.closest(".group-head");
+  if (g) { openGroups[g.dataset.group] = !openGroups[g.dataset.group]; renderQueue(); return; }
+  const r = ev.target.closest(".row"); if (r) select(r.dataset.id);
+});
+document.getElementById("q").addEventListener("input", (ev) => { query = ev.target.value; renderQueue(); });
+document.querySelectorAll(".scope button").forEach((b) => b.addEventListener("click", () => {
+  scope = b.dataset.scope;
+  document.querySelectorAll(".scope button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+  renderQueue(); fit();
+}));
+const notes = document.getElementById("notes");
+document.getElementById("open-notes").onclick = () => notes.showModal();
+
+document.addEventListener("keydown", (ev) => {
+  if (notes.open) return;
+  const inInput = !!ev.target.matches?.("input");
+  if ((ev.key === "?" || (ev.key === "/" && ev.shiftKey)) && !inInput) { ev.preventDefault(); notes.showModal(); return; }
+  if (ev.key === "/" && !inInput) { ev.preventDefault(); document.getElementById("q").focus(); return; }
+  if (ev.key === "Escape") { if (inInput) { ev.target.blur(); document.getElementById("queue").focus(); } else closeDetail(); return; }
+  if (inInput) { if (ev.key === "ArrowDown") { ev.preventDefault(); const ids = orderedIds(); ids.length && select(ids[0]); } return; }
+  if ((ev.key === "f" || ev.key === "F") && !ev.metaKey && !ev.ctrlKey) { fit(); return; }
+  if (["ArrowDown", "ArrowUp", "j", "k"].includes(ev.key)) {
+    const ids = orderedIds(); if (!ids.length) return;
+    ev.preventDefault();
+    const i = ids.indexOf(String(selectedId));
+    const next = ev.key === "ArrowDown" || ev.key === "j" ? Math.min(ids.length - 1, i + 1) : Math.max(0, i - 1);
+    select(ids[i === -1 ? 0 : next]);
+  }
+  if (ev.key === "Enter" && ev.target.classList?.contains("row")) select(ev.target.dataset.id);
+});
+
+fetch("data/events.json").then((r) => r.json()).then((d) => {
+  DATA = d;
+  NOW = new Date(d.snapshot).getTime();
+  const t = new Date(d.snapshot).toLocaleString("en-AU", { dateStyle: "medium", timeStyle: "short", timeZone: "Australia/Brisbane" });
+  const tt = new Date(d.snapshot).toLocaleString("en-AU", { weekday: "short", hour: "numeric", minute: "2-digit", timeZone: "Australia/Brisbane" });
+  document.getElementById("snapshot").textContent = d.illustrative ? `Scenario ${tt}` : `Snapshot ${tt}`;
+  document.getElementById("data-tag").textContent = d.illustrative
+    ? "Concept · illustrative events · not STREAMS"
+    : "Concept on live QLDTraffic data · not STREAMS";
+  document.getElementById("data-note").innerHTML = d.illustrative
+    ? "<b>The events shown are illustrative.</b> The roads are real; the incidents are invented, written in QLDTraffic's exact data format so live data can be swapped in."
+    : "<b>The events shown are a real snapshot</b> of the public QLDTraffic feed, taken at the time in the header.";
+  document.getElementById("data-credit").textContent = d.illustrative
+    ? "Events: illustrative, modelled on the QLDTraffic API v1.10 data format."
+    : "Data: State of Queensland (Department of Transport and Main Roads) QLDtraffic API, licensed CC BY 4.0 AU.";
+  renderTypes(); renderQueue(); initMap();
+  // On a wide screen, open the most urgent event straight away; on a phone, show the map and queue first
+  const first = orderedIds()[0];
+  if (first && matchMedia("(min-width: 861px)").matches) select(first, { fly: false, focusRow: false });
+});
+</script>
+</body>
+</html>
