@@ -118,6 +118,21 @@
   .notes b { color: var(--text); font-weight: 600; }
   .step { display: grid; gap: 14px; min-height: 260px; align-content: start; }
   .step[hidden], .link-btn[hidden] { display: none; }
+  .notes .lead { font-size: 18px; line-height: 1.4; font-weight: 600; color: var(--text); }
+  .stat { display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center; padding: 12px 14px; border: 1px solid var(--line-2); border-radius: 10px; color: var(--muted); font-size: 13px; }
+  .stat .big { font: 600 22px/1 "JetBrains Mono", monospace; color: var(--text); white-space: nowrap; }
+  .cards { list-style: none; display: grid; gap: 8px; padding: 0; }
+  .cards li { display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; padding: 12px 14px; border: 1px solid var(--line-2); border-radius: 10px; background: var(--panel-2); }
+  .cards .num { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--line-2); color: var(--text); font-weight: 600; font-size: 13px; }
+  .cards b, .flow b { display: inline; color: var(--text); font-weight: 600; }
+  .cards span:not(.num), .flow span { display: block; color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .notes a.src { color: var(--focus); text-underline-offset: 3px; }
+  .tag { font-style: normal; font-size: 11px; color: var(--high); border: 1px solid currentColor; border-radius: 999px; padding: 0 6px; margin-left: 6px; }
+  .notes ul.plain { padding-left: 18px; display: grid; gap: 6px; color: #c9cfd8; }
+  .flow { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0; counter-reset: f; }
+  .flow li { padding: 10px 12px; border: 1px solid var(--line-2); border-radius: 10px; font-size: 13px; counter-increment: f; }
+  .flow li::before { content: counter(f); display: block; font: 600 12px "JetBrains Mono", monospace; color: var(--focus); margin-bottom: 4px; }
+  @media (max-width: 560px) { .flow { grid-template-columns: 1fr; } .notes .lead { font-size: 16px; } }
   .steps-nav { display: flex; align-items: center; gap: 12px; padding-top: 6px; border-top: 1px solid var(--line); }
   .steps-nav .dots { flex: 1; display: flex; justify-content: center; gap: 6px; }
   .steps-nav .dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--line-2); }
@@ -189,8 +204,9 @@
     <section class="step" data-step="1">
       <p class="kicker">About this concept · 1 of 4</p>
       <h2 id="notes-title" tabindex="-1" autofocus>Why I made this</h2>
-      <p>I haven't worked in transport, so before applying for a product design role in this space I wanted to understand what an operator deals with when lots of things happen at once.</p>
-      <p>The problem I picked: when a dozen things are happening on the roads at once, which one needs the operator now, and can they trust what they're looking at? In South Australia, operators went from 11 separate systems to one alarm list and map, so all of it lands in front of one person.</p>
+      <p class="lead">When a dozen things happen on the roads at once, which one needs the operator now, and can they trust what they see?</p>
+      <div class="stat"><span class="big">11 → 1</span><span>In South Australia, operators went from 11 separate systems to one alarm list and map. All of it lands in front of one person. <a class="src" href="https://transmax.com.au/wp-content/uploads/2025/06/SA-Streams-ITS-Platform_Case-Study_2025.pdf" target="_blank" rel="noopener">Source: Transmax case study</a></span></div>
+      <p>I haven't worked in transport, so before applying for a design role in this space I wanted to understand that moment better.</p>
       <p class="callout" id="data-note"></p>
       <p class="fine">Not STREAMS, and not connected to Transport and Main Roads or Transmax.</p>
     </section>
@@ -198,34 +214,42 @@
     <section class="step" data-step="2" hidden>
       <p class="kicker">About this concept · 2 of 4</p>
       <h2 tabindex="-1">Three guesses</h2>
-      <p><b>What needs me now.</b> Crashes, hazards, flooding and congestion come before roadworks and events, since those were planned. Within that, I sorted by priority, then by how many lanes are blocked, then by time.</p>
-      <p><b>Can I trust it.</b> If nobody has updated an incident for over an hour, the screen says so, so nobody acts on old information.</p>
-      <p><b>List or map.</b> The list leads and the map follows: you pick from the list and the map moves to it. This is the one I'm least sure about.</p>
-      <p class="fine">Smaller things: priority uses a label and position as well as colour, everything works from the keyboard, and it's dark because control rooms are usually dim. I'd check all of these with operators.</p>
+      <ol class="cards">
+        <li><span class="num">1</span><div><b>Unplanned first</b><span>Crashes, hazards, floods and congestion before roadworks. Then priority, lanes blocked, time.</span></div></li>
+        <li><span class="num">2</span><div><b>Flag old information</b><span>No update for over an hour? The screen says so before anyone acts on it.</span></div></li>
+        <li><span class="num">3</span><div><b>The list leads, the map follows</b> <em class="tag">least sure</em><span>Pick from the list and the map moves to it.</span></div></li>
+      </ol>
+      <p class="fine">Also: priority never relies on colour alone, everything works from the keyboard, and it's dark for dim control rooms. All to check with operators.</p>
     </section>
 
     <section class="step" data-step="3" hidden>
       <p class="kicker">About this concept · 3 of 4</p>
       <h2 tabindex="-1">What I'd ask</h2>
-      <ul>
-        <li>When you rebuild a tool that operators know by muscle memory, how do you change it without slowing them down during the switch?</li>
-        <li>In the first minute of a motorway crash, what do you look at, and in what order?</li>
-        <li>How do you know someone else is already handling something?</li>
+      <p class="lead">When you rebuild a tool operators know by muscle memory, how do you change it without slowing them down?</p>
+      <ul class="plain">
+        <li>In the first minute of a motorway crash, what do you look at first?</li>
+        <li>How do you know someone else is already on it?</li>
         <li>Which alerts do you ignore, and why?</li>
       </ul>
-      <p class="fine">I've never seen a real control room, so I'd expect some of my guesses to be wrong. These are the questions that would tell me which.</p>
+      <p class="fine">I've never seen a real control room. These are the questions that would tell me which guesses are wrong.</p>
     </section>
 
     <section class="step" data-step="4" hidden>
       <p class="kicker">About this concept · 4 of 4</p>
       <h2 tabindex="-1">How I made it</h2>
-      <p>I read Transmax's public case studies and the QLDTraffic data spec, picked the problem and the three guesses, and built it with Claude Code. Then I tested it with the keyboard, on a phone and at laptop width. What I changed after testing:</p>
-      <ul>
-        <li>The markers didn't appear at first, because the map said it was ready before it really was.</li>
-        <li>The standard dark map hid the roads, which are the whole context, so I made the main roads brighter.</li>
-        <li>On a phone, details opened over everything. Now the queue and map show first, and details open as a half-height sheet.</li>
-        <li>On laptop-sized screens the map got squeezed to a sliver. Now the details float over it and the selected incident stays in view.</li>
+      <ol class="flow">
+        <li><b>Read</b><span>Transmax's <a class="src" href="https://transmax.com.au/what-we-do/success-stories/" target="_blank" rel="noopener">case studies</a> and the <a class="src" href="https://qldtraffic.qld.gov.au/more/Developers-and-Data/" target="_blank" rel="noopener">QLDTraffic data spec</a></span></li>
+        <li><b>Decided</b><span>the problem and the three guesses</span></li>
+        <li><b>Built and tested</b><span>with Claude Code, on keyboard, phone and laptop</span></li>
+      </ol>
+      <h3>Changed after testing</h3>
+      <ul class="plain">
+        <li>Markers didn't load: the map reported ready too early</li>
+        <li>The dark map hid the roads, so main roads are brighter</li>
+        <li>On phones, details covered everything; now a half-height sheet</li>
+        <li>On laptops, the map was squeezed; details now float over it</li>
       </ul>
+      <p class="callout">The closest real work I've done to this: <a href="https://www.fawaz.cc/work/unlocking-private-equity-for-shareholders?r=5eva" target="_blank" rel="noopener" class="src">designing every failure state of a regulated share trade at Liquidise</a>.</p>
       <p class="fine"><span id="data-credit"></span> Base map © OpenStreetMap contributors © CARTO. Concept by Muhammed Fawaz, fawaz.cc.</p>
     </section>
 
@@ -234,7 +258,7 @@
       <span class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
       <button type="button" class="help-btn primary" id="step-next">Next</button>
     </div>
-    <form method="dialog" class="skip"><button type="submit" class="link-btn" id="step-skip">Skip to the concept</button><span class="fine">Press ? any time to come back here.</span></form>
+    <p class="fine hint">Press ? any time to come back here.</p>
   </div>
 </dialog>
 
@@ -533,7 +557,6 @@ function showStep(n, focus = true) {
   document.getElementById("step-back").hidden = step === 1;
   const next = document.getElementById("step-next");
   next.textContent = step === STEPS ? "Explore the concept" : "Next";
-  document.getElementById("step-skip").hidden = step === STEPS;
   if (focus) document.querySelector(`#notes .step[data-step="${step}"] h2`).focus();
 }
 document.getElementById("step-back").onclick = () => showStep(step - 1);
@@ -573,7 +596,7 @@ fetch("data/events.json").then((r) => r.json()).then((d) => {
     ? "Concept · illustrative events · not STREAMS"
     : "Concept on live QLDTraffic data · not STREAMS";
   document.getElementById("data-note").innerHTML = d.illustrative
-    ? "<b>The events shown are illustrative.</b> The roads are real; the incidents are invented, written in QLDTraffic's exact data format so live data can be swapped in."
+    ? "<b>Illustrative events.</b> Real roads, invented incidents, in QLDTraffic's data format."
     : "<b>The events shown are a real snapshot</b> of the public QLDTraffic feed, taken at the time in the header.";
   document.getElementById("data-credit").textContent = d.illustrative
     ? "Events: illustrative, modelled on the QLDTraffic API v1.10 data format."
