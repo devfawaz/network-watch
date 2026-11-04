@@ -203,59 +203,55 @@
   <div class="notes">
     <section class="step" data-step="1">
       <p class="kicker">About this concept · 1 of 4 · press ? to reopen</p>
-      <h2 id="notes-title" tabindex="-1" autofocus>Why I made this</h2>
-      <p class="lead">When a dozen things happen on the roads at once, which one needs the operator now, and can they trust what they see?</p>
-      <p>In South Australia, operators went from 11 separate systems to one alarm list and map, so all of it lands in front of one person (<a class="src" href="https://transmax.com.au/wp-content/uploads/2025/06/SA-Streams-ITS-Platform_Case-Study_2025.pdf" target="_blank" rel="noopener">Transmax case study</a>).</p>
-      <p>I haven't worked in transport, so before applying for a design role in this space I wanted to understand that moment better.</p>
+      <h2 id="notes-title" tabindex="-1" autofocus>The moment I kept picturing</h2>
+      <p class="lead">One operator at a desk. A dozen things going wrong on the roads at once. Which one first, and can they trust what they see?</p>
+      <p>In South Australia, operators went from 11 separate systems to one alarm list and map (<a class="src" href="https://transmax.com.au/wp-content/uploads/2025/06/SA-Streams-ITS-Platform_Case-Study_2025.pdf" target="_blank" rel="noopener">Transmax case study</a>). All of it now lands in front of one person.</p>
+      <p>I haven't worked in transport, so before applying for a design role here I wanted to understand that moment.</p>
       <p class="note" id="data-note"></p>
       <p class="fine">Not STREAMS, and not connected to Transport and Main Roads or Transmax.</p>
     </section>
 
     <section class="step" data-step="2" hidden>
       <p class="kicker">About this concept · 2 of 4</p>
-      <h2 tabindex="-1">Three guesses</h2>
+      <h2 tabindex="-1">What I guessed they'd need</h2>
+      <p class="lead">If I were in that seat, I'd want three things.</p>
       <ol class="cards">
         <li><span class="num">1</span><div><b>Unplanned first</b><span>Crashes, hazards, floods and congestion before roadworks. Then priority, lanes blocked, time.</span></div></li>
-        <li><span class="num">2</span><div><b>Flag old information</b><span>No update for over an hour? The screen says so before anyone acts on it.</span></div></li>
+        <li><span class="num">2</span><div><b>A warning when information is old</b><span>No update for over an hour? Say so before anyone acts on it.</span></div></li>
         <li><span class="num">3</span><div><b>The list leads, the map follows</b> <em class="unsure">(least sure)</em><span>Pick from the list and the map moves to it.</span></div></li>
       </ol>
-      <p class="fine">Also: priority never relies on colour alone, everything works from the keyboard, and it's dark for dim control rooms. All to check with operators.</p>
     </section>
 
     <section class="step" data-step="3" hidden>
       <p class="kicker">About this concept · 3 of 4</p>
-      <h2 tabindex="-1">What I'd ask</h2>
+      <h2 tabindex="-1">What building it taught me</h2>
+      <p class="lead">The first version looked fine and was wrong in ways I only saw by using it.</p>
+      <ul class="plain">
+        <li>The dark map hid the roads, and the roads are the whole point. I made the main roads brighter.</li>
+        <li>On laptops, the details panel squeezed the map to a sliver. Now it floats, and the incident stays in view.</li>
+        <li>On phones, details covered everything. Now the queue and map come first.</li>
+        <li>The markers didn't load at first, because the map said it was ready too early.</li>
+      </ul>
+      <p class="fine">I read Transmax's <a class="src" href="https://transmax.com.au/what-we-do/success-stories/" target="_blank" rel="noopener">case studies</a> and the <a class="src" href="https://qldtraffic.qld.gov.au/more/Developers-and-Data/" target="_blank" rel="noopener">QLDTraffic data spec</a>, picked the guesses, built it with Claude Code, and tested it on keyboard, phone and laptop.</p>
+    </section>
+
+    <section class="step" data-step="4" hidden>
+      <p class="kicker">About this concept · 4 of 4</p>
+      <h2 tabindex="-1">What I'd ask you</h2>
       <p class="lead">When you rebuild a tool operators know by muscle memory, how do you change it without slowing them down?</p>
       <ul class="plain">
         <li>In the first minute of a motorway crash, what do you look at first?</li>
         <li>How do you know someone else is already on it?</li>
         <li>Which alerts do you ignore, and why?</li>
       </ul>
-      <p class="fine">I've never seen a real control room. These are the questions that would tell me which guesses are wrong.</p>
-    </section>
-
-    <section class="step" data-step="4" hidden>
-      <p class="kicker">About this concept · 4 of 4</p>
-      <h2 tabindex="-1">How I made it</h2>
-      <ol class="flow">
-        <li><b>Read</b><span>Transmax's <a class="src" href="https://transmax.com.au/what-we-do/success-stories/" target="_blank" rel="noopener">case studies</a> and the <a class="src" href="https://qldtraffic.qld.gov.au/more/Developers-and-Data/" target="_blank" rel="noopener">QLDTraffic data spec</a></span></li>
-        <li><b>Decided</b><span>the problem and the three guesses</span></li>
-        <li><b>Built and tested</b><span>with Claude Code, on keyboard, phone and laptop</span></li>
-      </ol>
-      <h3>Changed after testing</h3>
-      <ul class="plain">
-        <li>Markers didn't load: the map reported ready too early</li>
-        <li>The dark map hid the roads, so main roads are brighter</li>
-        <li>On phones, details covered everything; now a half-height sheet</li>
-        <li>On laptops, the map was squeezed; details now float over it</li>
-      </ul>
-      <p>The closest real work I've done to this: <a href="https://www.fawaz.cc/work/unlocking-private-equity-for-shareholders?r=5eva" target="_blank" rel="noopener" class="src">designing every failure state of a regulated share trade at Liquidise</a>.</p>
+      <p>I've never seen a real control room, so I expect some guesses to be wrong. The closest real work I've done: <a href="https://www.fawaz.cc/work/unlocking-private-equity-for-shareholders?r=5eva" target="_blank" rel="noopener" class="src">designing every failure state of a regulated share trade at Liquidise</a>.</p>
       <p class="fine"><span id="data-credit"></span> Base map © OpenStreetMap contributors © CARTO. Concept by Muhammed Fawaz, fawaz.cc.</p>
     </section>
 
     <div class="steps-nav">
       <button type="button" class="help-btn" id="step-back">Back</button>
       <span class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <button type="button" class="link-btn" id="step-skip" hidden>Skip</button>
       <button type="button" class="help-btn primary" id="step-next">Next</button>
     </div>
   </div>
@@ -554,6 +550,7 @@ function showStep(n, focus = true) {
   document.querySelectorAll("#notes .step").forEach((el) => (el.hidden = Number(el.dataset.step) !== step));
   document.querySelectorAll("#notes .dots i").forEach((d, i) => d.classList.toggle("on", i === step - 1));
   document.getElementById("step-back").hidden = step === 1;
+  document.getElementById("step-skip").hidden = aboutOpens < 2 || step === STEPS;
   const next = document.getElementById("step-next");
   next.textContent = step === STEPS ? "Explore the concept" : "Next";
   if (focus) document.querySelector(`#notes .step[data-step="${step}"] h2`).focus();
@@ -564,7 +561,15 @@ notes.addEventListener("keydown", (ev) => {
   if (ev.key === "ArrowRight") { ev.preventDefault(); step === STEPS ? notes.close() : showStep(step + 1); }
   if (ev.key === "ArrowLeft") { ev.preventDefault(); showStep(step - 1); }
 });
-const openNotes = () => { showStep(1, false); notes.showModal(); document.getElementById("notes-title").focus(); };
+// The first time, read it through; after that, offer a way straight back to the concept
+let aboutOpens = 0;
+document.getElementById("step-skip").onclick = () => notes.close();
+const openNotes = () => {
+  aboutOpens++;
+  showStep(1, false);
+  notes.showModal();
+  document.getElementById("notes-title").focus();
+};
 notes.addEventListener("close", () => { const r = selectedId && document.getElementById(`ev-${selectedId}`); (r || document.getElementById("queue")).focus(); });
 
 document.addEventListener("keydown", (ev) => {
@@ -604,7 +609,7 @@ fetch("data/events.json").then((r) => r.json()).then((d) => {
   // Show the context before the UI, once per visit
   let seen = false;
   try { seen = sessionStorage.getItem("nw-about-seen") === "1"; sessionStorage.setItem("nw-about-seen", "1"); } catch (_) {}
-  if (!seen) openNotes();
+  if (!seen) openNotes(); else aboutOpens = 1;
   // On a wide screen, open the most urgent event straight away; on a phone, show the map and queue first
   const first = orderedIds()[0];
   if (first && matchMedia("(min-width: 861px)").matches) select(first, { fly: false, focusRow: false });
