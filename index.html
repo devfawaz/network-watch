@@ -379,6 +379,7 @@ function closeDetail() {
   const id = selectedId; selectedId = null;
   document.querySelectorAll(".row[aria-selected='true']").forEach((r) => r.setAttribute("aria-selected", "false"));
   map && map.resize();
+  map && map.setPadding({ top: 0, bottom: 0, left: 0, right: 0 });
   if (map && map.getSource("sel")) map.getSource("sel").setData({ type: "FeatureCollection", features: [] });
   const r = id && document.getElementById(`ev-${id}`);
   r ? r.focus() : document.getElementById("queue").focus();
@@ -402,10 +403,14 @@ function updateMap(list) {
   map.getSource("pts").setData(f.pts);
   map.getSource("lines").setData(f.lines);
 }
+// On mid-size screens the details panel floats over the map, so keep the selected event clear of it
+const detailFloats = () => matchMedia("(min-width: 861px) and (max-width: 1200px)").matches;
 function highlight(e, fly) {
   if (!map || !map.getSource("sel")) return;
   map.getSource("sel").setData({ type: "Feature", properties: {}, geometry: { type: "Point", coordinates: e.point } });
-  if (fly) map.easeTo({ center: e.point, zoom: Math.max(map.getZoom(), 12), duration: 600, padding: { left: 20, right: 20, top: 20, bottom: 20 } });
+  map.setPadding({ top: 0, bottom: 0, left: 0, right: detailFloats() ? 380 : 0 });
+  if (!fly && detailFloats()) map.easeTo({ center: e.point, duration: 0 });
+  if (fly) map.easeTo({ center: e.point, zoom: Math.max(map.getZoom(), 12), duration: 600, padding: { left: 20, right: detailFloats() ? 400 : 20, top: 20, bottom: 20 } });
 }
 function fit() {
   if (!map) return;
