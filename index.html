@@ -172,44 +172,42 @@
 
 <dialog id="notes" aria-labelledby="notes-title">
   <div class="notes">
-    <h2 id="notes-title">Network Watch: a concept for traffic operators</h2>
-    <p>A one-day design exercise built on the data model of Queensland's public traffic feed (QLDTraffic API v1.10): the same event types, priorities, lane impacts and timestamps the public feed uses. It is <b>not</b> STREAMS and not affiliated with Transport and Main Roads or Transmax. I have never seen an operator's screen, so every decision below is a hypothesis to test in a control room.</p>
+    <h2 id="notes-title" tabindex="-1" autofocus style="outline:none">About this concept</h2>
+    <p>I haven't worked in transport, so before applying for a product design role in this space I wanted to understand what an operator deals with when lots of things happen at once. This is a small concept to help me think about that. It isn't STREAMS and isn't connected to Transport and Main Roads or Transmax.</p>
     <p class="callout" id="data-note"></p>
 
-    <h3>The problem</h3>
-    <p>When a dozen things are happening on the network at once, an operator has to decide <b>which one needs them now</b>, and <b>whether what they're seeing is current</b>. Traffic management centres have been moving from many separate systems to one (in South Australia, from 11 systems to a single alarm manager and map), which puts all of that in front of one person.</p>
+    <h3>The problem I picked</h3>
+    <p>When a dozen things are happening on the roads at once, which one needs the operator now, and can they trust what they're looking at? In South Australia, operators went from 11 separate systems to one alarm list and map, so all of it lands in front of one person.</p>
 
-    <h3>Three guesses this concept tests</h3>
+    <h3>Three guesses</h3>
+    <p>First, crashes, hazards, flooding and congestion should come before roadworks and events, since those were planned. Within that, I sorted by priority, then by how many lanes are blocked, then by time.</p>
+    <p>Second, if nobody has updated an incident for over an hour, the screen should say so, so nobody acts on old information.</p>
+    <p>Third, the list should lead and the map should follow. You pick from the list and the map moves to it. This is the one I'm least sure about.</p>
+    <p>Smaller things: priority is shown with a label and position as well as colour, everything works from the keyboard, and it's dark because control rooms are usually dim. I'd check all of these with operators.</p>
+
+    <h3>What I changed after testing it</h3>
     <ul>
-      <li><b>What needs me now.</b> Unplanned events (crashes, hazards, flooding, congestion) come first, sorted by priority, then lanes blocked, then time. Roadworks and special events are collapsed under "Planned", because they were scheduled and rarely need a response now.</li>
-      <li><b>Can I trust it.</b> An unplanned event nobody has updated in over an hour is flagged, with a prompt to check a camera or the source before acting.</li>
-      <li><b>List or map.</b> The list decides what you look at next and the map follows your selection, rather than the other way round.</li>
+      <li>The markers didn't appear at first, because the map said it was ready before it really was.</li>
+      <li>The standard dark map hid the roads, which are the whole context, so I made the main roads brighter.</li>
+      <li>The ? shortcut was being caught by the search shortcut.</li>
+      <li>On a phone, the details opened over everything on load. Now the queue and map show first, and details open as a half-height sheet.</li>
+      <li>On laptop-sized screens the map got squeezed to a sliver. Now the details float over it and the selected incident stays in view.</li>
     </ul>
 
-    <h3>Smaller decisions</h3>
+    <h3>What I'd ask operators</h3>
     <ul>
-      <li><b>Never colour alone.</b> Priority shows as a stripe, a text label and the order in the list, so it reads for colour-blind operators and on a washed-out wall screen.</li>
-      <li><b>Keyboard first.</b> Arrow keys move through the queue, Enter opens details, Esc closes, / searches.</li>
-      <li><b>Dark by default.</b> Control rooms are dim and shifts are long. To check with operators, not assume.</li>
+      <li>In the first minute of a motorway crash, what do you look at, and in what order?</li>
+      <li>What makes an incident yours: the district, the road, or whoever picks it up first?</li>
+      <li>How do you know someone else is already handling something?</li>
+      <li>What's on the wall screens compared with your own desk?</li>
+      <li>Which alerts do you ignore, and why?</li>
     </ul>
 
-    <h3>What I don't know</h3>
-    <p>I've never seen an operator at work, and existing systems may already handle all of this better. This is a way to start a conversation, not a fix.</p>
-
-    <h3>What I'd want to learn from operators</h3>
-    <ul>
-      <li>In the first 60 seconds of a motorway crash, what do you look at, in what order?</li>
-      <li>What makes an event "yours": district, road, device, or whoever picks it up first?</li>
-      <li>How do you know an event is already being handled, or that its information is out of date?</li>
-      <li>What is on the wall screens versus your own desk, and do they ever disagree?</li>
-      <li>Which events do you ignore, and could the system learn that safely?</li>
-    </ul>
-
-    <h3>How it was made</h3>
-    <p>Designed and built in a day with Claude Code, from the QLDTraffic API specification (v1.10) to a working prototype, then checked for keyboard use, screen-reader labels and phone layout.</p>
+    <h3>How I made it</h3>
+    <p>I read Transmax's public case studies and the QLDTraffic data spec, decided on the problem and the three guesses, and built it in a day with Claude Code. Then I tested it with the keyboard, on a phone and at laptop width, and fixed what broke. I've never seen a real control room, so I'd expect some of this to be wrong.</p>
 
     <p class="fine"><span id="data-credit"></span> Base map © OpenStreetMap contributors © CARTO. Concept by Muhammed Fawaz, fawaz.cc.</p>
-    <form method="dialog"><button class="help-btn" type="submit">Close</button></form>
+    <form method="dialog"><button class="help-btn" type="submit">Explore the concept</button> <span class="fine">Press ? any time to come back here.</span></form>
   </div>
 </dialog>
 
@@ -336,6 +334,20 @@ function select(id, { fly = true, focusRow = true } = {}) {
   document.getElementById("announce").textContent = `${label(e)}, ${e.priority || ""}, ${e.road || ""}`;
 }
 
+// One question per kind of incident, for a conversation with operators
+function operatorQuestion(e) {
+  if (isStale(e)) return "When information goes quiet like this, who do you call to check it?";
+  const q = {
+    Crash: "Do you go to a camera first, or straight to changing signs and lanes?",
+    Hazard: "How do you decide whether a hazard needs a lane closed or just a warning?",
+    Flooding: "Who confirms the road is clear before you reopen it?",
+    Congestion: "When is congestion worth your attention at all, and when is it just peak hour?",
+    Roadworks: "Do planned works ever need you mid-shift, and how would you want to be told?",
+    "Special event": "Do you plan event closures ahead with the organisers, or react on the night?",
+  };
+  return q[e.type] || "Is this enough to decide your first action?";
+}
+
 function showDetail(e) {
   const planned = PLANNED.includes(e.type);
   const color = planned ? "var(--planned)" : PCOLOR[e.priority] || "var(--low)";
@@ -375,7 +387,7 @@ function showDetail(e) {
       <dt>Source</dt><dd>${esc(e.source || "–")}</dd>
     </dl></div>
     <div class="section"><h3>Question for operators</h3>
-      <p class="q">${planned ? "Do planned works ever need your attention mid-shift, and how would you want to be told?" : "Is this enough to decide your first action, or do you go to a camera first?"}</p></div>`;
+      <p class="q">${esc(operatorQuestion(e))}</p></div>`;
   document.getElementById("main").classList.add("has-detail");
   document.getElementById("close-detail").onclick = closeDetail;
   map && map.resize();
@@ -484,6 +496,7 @@ document.querySelectorAll(".scope button").forEach((b) => b.addEventListener("cl
 }));
 const notes = document.getElementById("notes");
 document.getElementById("open-notes").onclick = () => notes.showModal();
+notes.addEventListener("close", () => { const r = selectedId && document.getElementById(`ev-${selectedId}`); (r || document.getElementById("queue")).focus(); });
 
 document.addEventListener("keydown", (ev) => {
   if (notes.open) return;
@@ -519,6 +532,10 @@ fetch("data/events.json").then((r) => r.json()).then((d) => {
     ? "Events: illustrative, modelled on the QLDTraffic API v1.10 data format."
     : "Data: State of Queensland (Department of Transport and Main Roads) QLDtraffic API, licensed CC BY 4.0 AU.";
   renderTypes(); renderQueue(); initMap();
+  // Show the context before the UI, once per visit
+  let seen = false;
+  try { seen = sessionStorage.getItem("nw-about-seen") === "1"; sessionStorage.setItem("nw-about-seen", "1"); } catch (_) {}
+  if (!seen) notes.showModal();
   // On a wide screen, open the most urgent event straight away; on a phone, show the map and queue first
   const first = orderedIds()[0];
   if (first && matchMedia("(min-width: 861px)").matches) select(first, { fly: false, focusRow: false });
