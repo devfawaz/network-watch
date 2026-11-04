@@ -27,16 +27,16 @@
   header { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--panel); flex-wrap: wrap; }
   .brand { display: flex; align-items: baseline; gap: 10px; }
   .brand b { font-weight: 700; letter-spacing: .01em; }
-  .tag { font-size: 11px; color: var(--muted); border: 1px solid var(--line-2); border-radius: 999px; padding: 2px 8px; }
-  .counts { display: flex; gap: 6px; margin-left: 8px; }
-  .count { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); font-weight: 600; }
+  .tag { font-size: 12px; color: var(--faint); }
+  .counts { display: flex; gap: 14px; margin-left: 12px; font-size: 13px; }
+  .count { display: flex; align-items: baseline; gap: 5px; font-weight: 600; font-variant-numeric: tabular-nums; }
   .count small { color: var(--muted); font-weight: 500; }
   .spacer { flex: 1; }
-  .scope { display: flex; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 2px; }
-  .scope button { padding: 5px 10px; border-radius: 6px; color: var(--muted); font-weight: 500; }
+  .scope { display: flex; background: var(--panel-2); border: 1px solid var(--line); border-radius: 4px; padding: 2px; }
+  .scope button { padding: 5px 10px; border-radius: 3px; color: var(--muted); font-weight: 500; }
   .scope button[aria-pressed="true"] { background: var(--line-2); color: var(--text); }
   .clock { color: var(--muted); }
-  .help-btn { border: 1px solid var(--line-2); border-radius: 8px; padding: 5px 10px; color: var(--muted); }
+  .help-btn { border: 1px solid var(--line-2); border-radius: 4px; padding: 5px 10px; color: var(--muted); }
   .help-btn:hover { color: var(--text); }
 
   main { display: grid; grid-template-columns: var(--rail) 1fr; min-height: 0; position: relative; }
@@ -45,16 +45,16 @@
   /* Queue */
   .rail { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--line); background: var(--panel); }
   .search { padding: 12px; border-bottom: 1px solid var(--line); display: grid; gap: 8px; }
-  .search input { width: 100%; background: var(--bg); border: 1px solid var(--line-2); color: var(--text); border-radius: 8px; padding: 8px 10px; font: inherit; }
+  .search input { width: 100%; background: var(--bg); border: 1px solid var(--line-2); color: var(--text); border-radius: 4px; padding: 8px 10px; font: inherit; }
   .search input::placeholder { color: var(--faint); }
   .types { display: flex; flex-wrap: wrap; gap: 6px; }
-  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 9px; border: 1px solid var(--line-2); border-radius: 999px; font-size: 12px; color: var(--muted); }
+  .chip { display: inline-flex; align-items: center; padding: 3px 8px; border: 1px solid var(--line-2); border-radius: 4px; font-size: 12px; color: var(--muted); }
   .chip[aria-pressed="true"] { color: var(--text); background: var(--line-2); }
   .chip svg { width: 13px; height: 13px; }
   .queue { overflow: auto; min-height: 0; flex: 1; }
   .group { border-bottom: 1px solid var(--line); }
   .group-head { position: sticky; top: 0; z-index: 1; width: 100%; display: flex; align-items: center; gap: 8px; padding: 9px 12px; background: var(--panel); font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--line); }
-  .group-head .n { margin-left: auto; font-family: "JetBrains Mono", monospace; letter-spacing: 0; }
+  .group-head .n { margin-left: auto; font-variant-numeric: tabular-nums; letter-spacing: 0; }
   .group-head .caret { transition: transform .15s; }
   .group[data-open="false"] .caret { transform: rotate(-90deg); }
   .group[data-open="false"] ol { display: none; }
@@ -63,7 +63,7 @@
   .row:hover { background: var(--panel-2); }
   .row[aria-selected="true"] { background: #1d2733; box-shadow: inset 0 0 0 1px #2f4256; }
   .stripe { align-self: stretch; border-radius: 0 3px 3px 0; }
-  .icon { width: 28px; height: 28px; border-radius: 7px; display: grid; place-items: center; background: var(--panel-2); border: 1px solid var(--line-2); }
+  .icon { width: 28px; height: 28px; border-radius: 4px; display: grid; place-items: center; background: var(--panel-2); border: 1px solid var(--line-2); }
   .icon svg { width: 16px; height: 16px; }
   .row-main { min-width: 0; }
   .row-title { font-weight: 600; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
@@ -80,12 +80,12 @@
   /* Map */
   .map-wrap { position: relative; min-height: 0; }
   #map { position: absolute; inset: 0; }
-  .legend { position: absolute; left: 12px; bottom: 28px; background: rgba(20,25,32,.92); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 12px; display: grid; gap: 5px; }
+  .legend { position: absolute; left: 12px; bottom: 28px; background: rgba(20,25,32,.92); border: 1px solid var(--line); border-radius: 4px; padding: 10px 12px; font-size: 12px; display: grid; gap: 5px; }
   .legend div { display: flex; align-items: center; gap: 8px; color: var(--muted); }
   .dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid #0d1015; box-shadow: 0 0 0 1px currentColor; }
   .maplibregl-ctrl-attrib { background: rgba(13,16,21,.8) !important; color: var(--faint); }
   .maplibregl-ctrl-attrib a { color: var(--muted) !important; }
-  .maplibregl-popup-content { background: var(--panel); color: var(--text); border: 1px solid var(--line-2); border-radius: 8px; padding: 6px 10px; font-size: 12px; }
+  .maplibregl-popup-content { background: var(--panel); color: var(--text); border: 1px solid var(--line-2); border-radius: 4px; padding: 6px 10px; font-size: 12px; }
   .maplibregl-popup-tip { display: none; }
 
   /* Detail */
@@ -94,20 +94,22 @@
   .detail-head { padding: 14px 16px; border-bottom: 1px solid var(--line); display: grid; gap: 8px; position: sticky; top: 0; background: var(--panel); }
   .detail-top { display: flex; align-items: center; gap: 10px; }
   .detail-top h2 { font-size: 16px; line-height: 1.3; }
-  .close { margin-left: auto; width: 30px; height: 30px; border-radius: 8px; color: var(--muted); border: 1px solid var(--line-2); }
+  .close { margin-left: auto; width: 30px; height: 30px; border-radius: 4px; color: var(--muted); border: 1px solid var(--line-2); }
   .section { padding: 14px 16px; border-bottom: 1px solid var(--line); display: grid; gap: 8px; }
   .section h3 { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--faint); }
   dl { display: grid; grid-template-columns: 110px 1fr; gap: 6px 12px; }
   dt { color: var(--muted); }
   dd { color: var(--text); }
-  .callout { background: var(--panel-2); border: 1px solid var(--line-2); border-radius: 8px; padding: 10px 12px; color: var(--muted); }
+  .callout { background: var(--panel-2); border: 1px solid var(--line-2); border-radius: 4px; padding: 10px 12px; color: var(--muted); }
   .callout b { color: var(--text); }
-  .q { border-left: 2px solid var(--focus); padding-left: 10px; color: var(--muted); }
+  .q { color: var(--muted); }
 
   /* Notes dialog */
-  dialog { margin: auto; max-width: 720px; width: calc(100% - 32px); max-height: calc(100% - 48px); background: var(--panel); color: var(--text); border: 1px solid var(--line-2); border-radius: 14px; padding: 0; }
+  dialog { margin: auto; max-width: 720px; width: calc(100% - 32px); max-height: calc(100% - 48px); background: var(--panel); color: var(--text); border: 1px solid var(--line-2); border-radius: 6px; padding: 0; }
   dialog::backdrop { background: rgba(0,0,0,.6); }
-  .notes { padding: 22px 24px; display: grid; gap: 16px; overflow: auto; }
+  .notes { padding: 22px 24px; display: flex; flex-direction: column; gap: 16px; height: min(540px, calc(100dvh - 64px)); }
+  .notes .note { color: var(--muted); }
+  .notes .note b { color: var(--text); }
   .notes h2 { font-size: 20px; }
   .notes h3 { font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
   .notes p, .notes li { color: #c9cfd8; }
@@ -116,22 +118,20 @@
   .notes .kicker { font-size: 12px; color: var(--muted); letter-spacing: .04em; }
   .notes h2 { outline: none; margin-top: -8px; }
   .notes b { color: var(--text); font-weight: 600; }
-  .step { display: grid; gap: 14px; min-height: 260px; align-content: start; }
+  .step { display: grid; gap: 14px; align-content: start; flex: 1; overflow: auto; min-height: 0; }
   .step[hidden], .link-btn[hidden] { display: none; }
   .notes .lead { font-size: 18px; line-height: 1.4; font-weight: 600; color: var(--text); }
-  .stat { display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center; padding: 12px 14px; border: 1px solid var(--line-2); border-radius: 10px; color: var(--muted); font-size: 13px; }
-  .stat .big { font: 600 22px/1 "JetBrains Mono", monospace; color: var(--text); white-space: nowrap; }
-  .cards { list-style: none; display: grid; gap: 8px; padding: 0; }
-  .cards li { display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; padding: 12px 14px; border: 1px solid var(--line-2); border-radius: 10px; background: var(--panel-2); }
-  .cards .num { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--line-2); color: var(--text); font-weight: 600; font-size: 13px; }
+  .cards { list-style: none; display: grid; grid-auto-rows: 1fr; gap: 8px; padding: 0; }
+  .cards li { display: grid; grid-template-columns: 18px 1fr; gap: 10px; align-items: start; padding: 12px 14px; border: 1px solid var(--line-2); border-radius: 4px; }
+  .cards .num { color: var(--muted); font-weight: 600; }
   .cards b, .flow b { display: inline; color: var(--text); font-weight: 600; }
   .cards span:not(.num), .flow span { display: block; color: var(--muted); font-size: 13px; margin-top: 2px; }
   .notes a.src { color: var(--focus); text-underline-offset: 3px; }
-  .tag { font-style: normal; font-size: 11px; color: var(--high); border: 1px solid currentColor; border-radius: 999px; padding: 0 6px; margin-left: 6px; }
+  .unsure { font-style: normal; font-weight: 400; color: var(--muted); }
   .notes ul.plain { padding-left: 18px; display: grid; gap: 6px; color: #c9cfd8; }
   .flow { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0; counter-reset: f; }
-  .flow li { padding: 10px 12px; border: 1px solid var(--line-2); border-radius: 10px; font-size: 13px; counter-increment: f; }
-  .flow li::before { content: counter(f); display: block; font: 600 12px "JetBrains Mono", monospace; color: var(--focus); margin-bottom: 4px; }
+  .flow li { padding: 10px 12px; border: 1px solid var(--line-2); border-radius: 4px; font-size: 13px; counter-increment: f; }
+  .flow li::before { content: counter(f) "."; display: block; font-weight: 600; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
   @media (max-width: 560px) { .flow { grid-template-columns: 1fr; } .notes .lead { font-size: 16px; } }
   .steps-nav { display: flex; align-items: center; gap: 12px; padding-top: 6px; border-top: 1px solid var(--line); }
   .steps-nav .dots { flex: 1; display: flex; justify-content: center; gap: 6px; }
@@ -151,7 +151,7 @@
     main, main.has-detail { grid-template-columns: 1fr; grid-template-rows: 42vh 1fr; }
     .map-wrap { grid-row: 1; }
     .rail { grid-row: 2; border-right: 0; border-top: 1px solid var(--line); }
-    .detail { position: fixed; inset: auto 0 0 0; max-height: 52vh; border-left: 0; border-top: 1px solid var(--line-2); border-radius: 14px 14px 0 0; z-index: 5; box-shadow: 0 -10px 30px rgba(0,0,0,.5); }
+    .detail { position: fixed; inset: auto 0 0 0; max-height: 52vh; border-left: 0; border-top: 1px solid var(--line-2); border-radius: 6px 6px 0 0; z-index: 5; box-shadow: 0 -10px 30px rgba(0,0,0,.5); }
     .counts .count:nth-child(n+3), .clock, .rail-foot, .tag { display: none; }
     .legend { display: none; }
   }
@@ -202,12 +202,12 @@
 <dialog id="notes" aria-labelledby="notes-title">
   <div class="notes">
     <section class="step" data-step="1">
-      <p class="kicker">About this concept · 1 of 4</p>
+      <p class="kicker">About this concept · 1 of 4 · press ? to reopen</p>
       <h2 id="notes-title" tabindex="-1" autofocus>Why I made this</h2>
       <p class="lead">When a dozen things happen on the roads at once, which one needs the operator now, and can they trust what they see?</p>
-      <div class="stat"><span class="big">11 → 1</span><span>In South Australia, operators went from 11 separate systems to one alarm list and map. All of it lands in front of one person. <a class="src" href="https://transmax.com.au/wp-content/uploads/2025/06/SA-Streams-ITS-Platform_Case-Study_2025.pdf" target="_blank" rel="noopener">Source: Transmax case study</a></span></div>
+      <p>In South Australia, operators went from 11 separate systems to one alarm list and map, so all of it lands in front of one person (<a class="src" href="https://transmax.com.au/wp-content/uploads/2025/06/SA-Streams-ITS-Platform_Case-Study_2025.pdf" target="_blank" rel="noopener">Transmax case study</a>).</p>
       <p>I haven't worked in transport, so before applying for a design role in this space I wanted to understand that moment better.</p>
-      <p class="callout" id="data-note"></p>
+      <p class="note" id="data-note"></p>
       <p class="fine">Not STREAMS, and not connected to Transport and Main Roads or Transmax.</p>
     </section>
 
@@ -217,7 +217,7 @@
       <ol class="cards">
         <li><span class="num">1</span><div><b>Unplanned first</b><span>Crashes, hazards, floods and congestion before roadworks. Then priority, lanes blocked, time.</span></div></li>
         <li><span class="num">2</span><div><b>Flag old information</b><span>No update for over an hour? The screen says so before anyone acts on it.</span></div></li>
-        <li><span class="num">3</span><div><b>The list leads, the map follows</b> <em class="tag">least sure</em><span>Pick from the list and the map moves to it.</span></div></li>
+        <li><span class="num">3</span><div><b>The list leads, the map follows</b> <em class="unsure">(least sure)</em><span>Pick from the list and the map moves to it.</span></div></li>
       </ol>
       <p class="fine">Also: priority never relies on colour alone, everything works from the keyboard, and it's dark for dim control rooms. All to check with operators.</p>
     </section>
@@ -249,7 +249,7 @@
         <li>On phones, details covered everything; now a half-height sheet</li>
         <li>On laptops, the map was squeezed; details now float over it</li>
       </ul>
-      <p class="callout">The closest real work I've done to this: <a href="https://www.fawaz.cc/work/unlocking-private-equity-for-shareholders?r=5eva" target="_blank" rel="noopener" class="src">designing every failure state of a regulated share trade at Liquidise</a>.</p>
+      <p>The closest real work I've done to this: <a href="https://www.fawaz.cc/work/unlocking-private-equity-for-shareholders?r=5eva" target="_blank" rel="noopener" class="src">designing every failure state of a regulated share trade at Liquidise</a>.</p>
       <p class="fine"><span id="data-credit"></span> Base map © OpenStreetMap contributors © CARTO. Concept by Muhammed Fawaz, fawaz.cc.</p>
     </section>
 
@@ -258,7 +258,6 @@
       <span class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
       <button type="button" class="help-btn primary" id="step-next">Next</button>
     </div>
-    <p class="fine hint">Press ? any time to come back here.</p>
   </div>
 </dialog>
 
@@ -509,7 +508,7 @@ function initMap() {
     map.addSource("pts", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
     map.addSource("sel", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
     map.addLayer({ id: "lines", type: "line", source: "lines", paint: { "line-color": ["get", "color"], "line-width": ["interpolate", ["linear"], ["zoom"], 8, 2, 14, 5], "line-opacity": 0.85 }, layout: { "line-cap": "round", "line-join": "round" } });
-    map.addLayer({ id: "sel-halo", type: "circle", source: "sel", paint: { "circle-radius": 18, "circle-color": "#7cc4ff", "circle-opacity": 0.18, "circle-stroke-color": "#7cc4ff", "circle-stroke-width": 2 } });
+    map.addLayer({ id: "sel-halo", type: "circle", source: "sel", paint: { "circle-radius": 14, "circle-color": "#7cc4ff", "circle-opacity": 0, "circle-stroke-color": "#e7eaef", "circle-stroke-width": 2 } });
     map.addLayer({ id: "pts", type: "circle", source: "pts",
       layout: { "circle-sort-key": ["get", "rank"] },
       paint: { "circle-color": ["get", "color"], "circle-radius": ["interpolate", ["linear"], ["get", "rank"], 0, 4.5, 1, 5.5, 4, 9], "circle-stroke-color": "#0d1015", "circle-stroke-width": 2 } });
@@ -526,7 +525,7 @@ function initMap() {
 /* Controls */
 function renderTypes() {
   document.getElementById("types").innerHTML = TYPES.map((t) =>
-    `<button type="button" class="chip" data-type="${t}" aria-pressed="${activeTypes.has(t)}">${icon(t)}${t}</button>`).join("");
+    `<button type="button" class="chip" data-type="${t}" aria-pressed="${activeTypes.has(t)}">${t}</button>`).join("");
 }
 document.getElementById("types").addEventListener("click", (ev) => {
   const b = ev.target.closest(".chip"); if (!b) return;
