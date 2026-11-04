@@ -114,6 +114,10 @@
   .notes ul { padding-left: 18px; display: grid; gap: 6px; }
   .notes .fine { color: var(--faint); font-size: 12px; }
 
+  @media (min-width: 861px) and (max-width: 1200px) {
+    main.has-detail { grid-template-columns: var(--rail) 1fr; }
+    .detail { position: absolute; top: 0; right: 0; bottom: 0; width: var(--detail); z-index: 3; box-shadow: -12px 0 30px rgba(0,0,0,.45); }
+  }
   @media (max-width: 860px) {
     main, main.has-detail { grid-template-columns: 1fr; grid-template-rows: 42vh 1fr; }
     .map-wrap { grid-row: 1; }
